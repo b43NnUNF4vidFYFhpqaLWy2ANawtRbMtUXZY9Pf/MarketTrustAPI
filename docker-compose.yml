@@ -1,0 +1,13 @@
+services:
+  web_api:
+    image: markettrust_api
+    container_name: markettrust_api
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+  db:
+    image: "mcr.microsoft.com/mssql/server:2022-latest"
+    container_name: markettrust_db
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${SA_PASSWORD}
