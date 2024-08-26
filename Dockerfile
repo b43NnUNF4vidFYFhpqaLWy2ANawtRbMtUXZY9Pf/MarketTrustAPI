@@ -4,11 +4,11 @@ EXPOSE 8080
 EXPOSE 8081
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /src
-COPY ["MarketTrustAPI.csproj", "."]
-RUN dotnet restore "./MarketTrustAPI.csproj"
+WORKDIR /App
+COPY ["src/MarketTrustAPI.csproj", "src/"]
+RUN dotnet restore "src/MarketTrustAPI.csproj"
 COPY . .
-WORKDIR "/src/."
+WORKDIR "/App/src"
 RUN dotnet build "MarketTrustAPI.csproj" -c Release -o /App/build
 
 FROM build AS publish
