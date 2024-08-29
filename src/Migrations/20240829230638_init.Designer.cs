@@ -13,7 +13,7 @@ using NetTopologySuite.Geometries;
 namespace MarketTrustAPI.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20240829180638_init")]
+    [Migration("20240829230638_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -148,6 +148,15 @@ namespace MarketTrustAPI.Migrations
 
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsPublicEmail")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPublicLocation")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPublicPhone")
+                        .HasColumnType("bit");
 
                     b.Property<Point>("Location")
                         .HasColumnType("geography");

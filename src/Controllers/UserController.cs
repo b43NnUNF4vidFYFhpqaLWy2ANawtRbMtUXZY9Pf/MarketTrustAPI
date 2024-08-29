@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MarketTrustAPI.Data;
+using MarketTrustAPI.Dtos.User;
+using MarketTrustAPI.Mappers;
 using MarketTrustAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,7 +24,9 @@ namespace MarketTrustAPI.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            List<User> users = _context.Users.ToList();
+            List<UserDto> users = _context.Users
+                .Select(user => user.ToUserDto())
+                .ToList();
 
             return Ok(users);
         }
@@ -37,7 +41,7 @@ namespace MarketTrustAPI.Controllers
                 return NotFound();
             }
 
-            return Ok(user);
+            return Ok(user.ToUserDto());
         }
             
     }

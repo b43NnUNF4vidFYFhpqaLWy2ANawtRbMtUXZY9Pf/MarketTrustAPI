@@ -39,8 +39,11 @@ namespace MarketTrustAPI.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsPublicEmail = table.Column<bool>(type: "bit", nullable: false),
                     Phone = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Location = table.Column<Point>(type: "geography", nullable: true)
+                    IsPublicPhone = table.Column<bool>(type: "bit", nullable: false),
+                    Location = table.Column<Point>(type: "geography", nullable: true),
+                    IsPublicLocation = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
