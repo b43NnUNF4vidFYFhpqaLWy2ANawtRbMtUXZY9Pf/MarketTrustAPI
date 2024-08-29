@@ -17,7 +17,11 @@ namespace MarketTrustAPI.SpatialIndexManager
 
             foreach (ILocatable item in items)
             {
-                _hprTree.Insert(item.GetLocation().EnvelopeInternal, item);
+                Point? location = item.GetLocation();
+                if (location != null)
+                {
+                    _hprTree.Insert(location.EnvelopeInternal, item);
+                }
             }
         }
 

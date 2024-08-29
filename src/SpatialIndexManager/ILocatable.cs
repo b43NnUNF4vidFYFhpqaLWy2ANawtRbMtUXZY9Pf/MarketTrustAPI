@@ -8,6 +8,6 @@ namespace MarketTrustAPI.SpatialIndexManager
 {
     public interface ILocatable
     {
-        Point GetLocation();
+        Point? GetLocation();
     }
 }
