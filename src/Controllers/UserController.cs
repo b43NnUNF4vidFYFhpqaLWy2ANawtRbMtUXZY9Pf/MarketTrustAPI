@@ -77,5 +77,21 @@ namespace MarketTrustAPI.Controllers
 
             return Ok(user.ToUserDto());
         }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete([FromRoute] int id)
+        {
+            User? user = _context.Users.Find(id);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            _context.Users.Remove(user);
+            _context.SaveChanges();
+
+            return NoContent();
+        }
     }
 }
