@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MarketTrustAPI.SpatialIndexManager;
+using NetTopologySuite.Geometries;
 
 namespace MarketTrustAPI.Models
 {
-    public class Post
+    public class Post : ILocatable
     {
         public int Id { get; set; }
         public string Title { get; set; } = string.Empty;
@@ -19,5 +21,10 @@ namespace MarketTrustAPI.Models
         public int CategoryId { get; set; }
         public Category Category { get; set; } = null!;
         public List<PropertyValue> PropertyValues { get; set; } = new List<PropertyValue>();
+
+        public Point? GetLocation()
+        {
+            return User.Location;
+        }
     }
 }
