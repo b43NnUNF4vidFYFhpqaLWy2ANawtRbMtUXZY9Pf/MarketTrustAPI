@@ -24,7 +24,7 @@ namespace MarketTrustAPI.Models
 
         public Point? GetLocation()
         {
-            return User.Location;
+            return User.GetLocation();
         }
     }
 }
