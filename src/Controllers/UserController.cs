@@ -44,5 +44,15 @@ namespace MarketTrustAPI.Controllers
             return Ok(user.ToUserDto());
         }
             
+        [HttpPost]
+        public IActionResult Create([FromBody] CreateUserDto createUserDto)
+        {
+            User user = createUserDto.ToUserFromCreateDto();
+
+            _context.Users.Add(user);
+            _context.SaveChanges();
+
+            return CreatedAtAction(nameof(GetById), new { id = user.Id }, user.ToUserDto());
+        }
     }
 }

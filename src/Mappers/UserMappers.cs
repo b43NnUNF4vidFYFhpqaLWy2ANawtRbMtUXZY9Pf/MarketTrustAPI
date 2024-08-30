@@ -20,5 +20,19 @@ namespace MarketTrustAPI.Mappers
                 Location = user.IsPublicLocation ? user.Location : null
             };
         }
+
+        public static User ToUserFromCreateDto(this CreateUserDto createUserDto)
+        {
+            return new User
+            {
+                Name = createUserDto.Name,
+                Email = createUserDto.Email,
+                IsPublicEmail = createUserDto.IsPublicEmail,
+                Phone = createUserDto.Phone,
+                IsPublicPhone = createUserDto.IsPublicPhone,
+                Location = createUserDto.Location,
+                IsPublicLocation = createUserDto.IsPublicLocation
+            };
+        }
     }
 }
