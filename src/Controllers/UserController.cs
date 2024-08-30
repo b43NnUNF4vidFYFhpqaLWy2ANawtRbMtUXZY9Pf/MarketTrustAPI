@@ -54,5 +54,28 @@ namespace MarketTrustAPI.Controllers
 
             return CreatedAtAction(nameof(GetById), new { id = user.Id }, user.ToUserDto());
         }
+
+        [HttpPut("{id}")]
+        public IActionResult Update([FromRoute] int id, [FromBody] UpdateUserDto updateUserDto)
+        {
+            User? user = _context.Users.Find(id);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            user.Name = updateUserDto.Name;
+            user.Email = updateUserDto.Email;
+            user.IsPublicEmail = updateUserDto.IsPublicEmail;
+            user.Phone = updateUserDto.Phone;
+            user.IsPublicPhone = updateUserDto.IsPublicPhone;
+            user.Location = updateUserDto.Location;
+            user.IsPublicLocation = updateUserDto.IsPublicLocation;
+
+            _context.SaveChanges();
+
+            return Ok(user.ToUserDto());
+        }
     }
 }
