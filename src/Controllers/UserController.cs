@@ -7,6 +7,7 @@ using MarketTrustAPI.Dtos.User;
 using MarketTrustAPI.Mappers;
 using MarketTrustAPI.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace MarketTrustAPI.Controllers
 {
@@ -22,19 +23,19 @@ namespace MarketTrustAPI.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            List<UserDto> users = _context.Users
+            List<UserDto> users = await _context.Users
                 .Select(user => user.ToUserDto())
-                .ToList();
+                .ToListAsync();
 
             return Ok(users);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetById([FromRoute] int id)
+        public async Task<IActionResult> GetById([FromRoute] int id)
         {
-            User? user = _context.Users.Find(id);
+            User? user = await _context.Users.FindAsync(id);
 
             if (user == null)
             {
@@ -45,20 +46,20 @@ namespace MarketTrustAPI.Controllers
         }
             
         [HttpPost]
-        public IActionResult Create([FromBody] CreateUserDto createUserDto)
+        public async Task<IActionResult> Create([FromBody] CreateUserDto createUserDto)
         {
             User user = createUserDto.ToUserFromCreateDto();
 
-            _context.Users.Add(user);
-            _context.SaveChanges();
+            await _context.Users.AddAsync(user);
+            await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetById), new { id = user.Id }, user.ToUserDto());
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update([FromRoute] int id, [FromBody] UpdateUserDto updateUserDto)
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateUserDto updateUserDto)
         {
-            User? user = _context.Users.Find(id);
+            User? user = await _context.Users.FindAsync(id);
 
             if (user == null)
             {
@@ -73,15 +74,15 @@ namespace MarketTrustAPI.Controllers
             user.Location = updateUserDto.Location;
             user.IsPublicLocation = updateUserDto.IsPublicLocation;
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return Ok(user.ToUserDto());
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete([FromRoute] int id)
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            User? user = _context.Users.Find(id);
+            User? user = await _context.Users.FindAsync(id);
 
             if (user == null)
             {
@@ -89,7 +90,7 @@ namespace MarketTrustAPI.Controllers
             }
 
             _context.Users.Remove(user);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
