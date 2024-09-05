@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MarketTrustAPI.Data;
 using MarketTrustAPI.Dtos.User;
+using MarketTrustAPI.Interfaces;
 using MarketTrustAPI.Mappers;
 using MarketTrustAPI.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -15,27 +16,28 @@ namespace MarketTrustAPI.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly ApplicationDBContext _context;
+        private readonly IUserRepository _userRepository;
 
-        public UserController(ApplicationDBContext context)
+        public UserController(IUserRepository userRepository)
         {
-            _context = context;
+            _userRepository = userRepository;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            List<UserDto> users = await _context.Users
+            List<User> users = await _userRepository.GetAllAsync();
+            List<UserDto> userDtos = users
                 .Select(user => user.ToUserDto())
-                .ToListAsync();
+                .ToList();
 
-            return Ok(users);
+            return Ok(userDtos);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
-            User? user = await _context.Users.FindAsync(id);
+            User? user = await _userRepository.GetByIdAsync(id);
 
             if (user == null)
             {
@@ -50,8 +52,7 @@ namespace MarketTrustAPI.Controllers
         {
             User user = createUserDto.ToUserFromCreateDto();
 
-            await _context.Users.AddAsync(user);
-            await _context.SaveChangesAsync();
+            await _userRepository.CreateAsync(user);
 
             return CreatedAtAction(nameof(GetById), new { id = user.Id }, user.ToUserDto());
         }
@@ -59,22 +60,12 @@ namespace MarketTrustAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateUserDto updateUserDto)
         {
-            User? user = await _context.Users.FindAsync(id);
+            User? user = await _userRepository.UpdateAsync(id, updateUserDto);
 
             if (user == null)
             {
                 return NotFound();
             }
-
-            user.Name = updateUserDto.Name;
-            user.Email = updateUserDto.Email;
-            user.IsPublicEmail = updateUserDto.IsPublicEmail;
-            user.Phone = updateUserDto.Phone;
-            user.IsPublicPhone = updateUserDto.IsPublicPhone;
-            user.Location = updateUserDto.Location;
-            user.IsPublicLocation = updateUserDto.IsPublicLocation;
-
-            await _context.SaveChangesAsync();
 
             return Ok(user.ToUserDto());
         }
@@ -82,15 +73,12 @@ namespace MarketTrustAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            User? user = await _context.Users.FindAsync(id);
+            User? user = await _userRepository.DeleteAsync(id);
 
             if (user == null)
             {
                 return NotFound();
             }
-
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
 
             return NoContent();
         }

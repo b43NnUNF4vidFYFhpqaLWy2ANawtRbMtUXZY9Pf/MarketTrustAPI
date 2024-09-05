@@ -1,4 +1,6 @@
 using MarketTrustAPI.Data;
+using MarketTrustAPI.Interfaces;
+using MarketTrustAPI.Repository;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +17,8 @@ builder.Services.AddDbContext<ApplicationDBContext>(options => {
         builder.Configuration.GetConnectionString("DefaultConnection"),
         x => x.UseNetTopologySuite());
 });
+
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 var app = builder.Build();
 
