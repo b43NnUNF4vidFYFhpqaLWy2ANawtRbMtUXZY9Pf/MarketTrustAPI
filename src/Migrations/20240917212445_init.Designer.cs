@@ -13,7 +13,7 @@ using NetTopologySuite.Geometries;
 namespace MarketTrustAPI.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20240917205705_init")]
+    [Migration("20240917212445_init")]
     partial class init
     {
         /// <inheritdoc />
