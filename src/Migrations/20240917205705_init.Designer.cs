@@ -13,7 +13,7 @@ using NetTopologySuite.Geometries;
 namespace MarketTrustAPI.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20240829230638_init")]
+    [Migration("20240917205705_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -64,9 +64,6 @@ namespace MarketTrustAPI.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsSale")
-                        .HasColumnType("bit");
 
                     b.Property<DateTime?>("LastUpdatedAt")
                         .HasColumnType("datetime2");
