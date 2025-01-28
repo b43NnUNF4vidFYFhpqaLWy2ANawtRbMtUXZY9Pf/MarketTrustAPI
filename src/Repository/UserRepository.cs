@@ -21,12 +21,17 @@ namespace MarketTrustAPI.Repository
 
         public async Task<List<User>> GetAllAsync()
         {
-            return await _context.Users.ToListAsync();
+            return await _context.Users
+                .Include(user => user.Posts)
+                .ThenInclude(post => post.PropertyValues)
+                .ToListAsync();
         }
 
         public async Task<User?> GetByIdAsync(int id) 
         {
-            return await _context.Users.FindAsync(id);
+            return await _context.Users
+                .Include(user => user.Posts)
+                .FirstOrDefaultAsync(user => user.Id == id);
         }
 
         public async Task<User> CreateAsync(User user)

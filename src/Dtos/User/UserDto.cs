@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MarketTrustAPI.Dtos.Post;
 using NetTopologySuite.Geometries;
 
 namespace MarketTrustAPI.Dtos.User
@@ -13,5 +14,6 @@ namespace MarketTrustAPI.Dtos.User
         public string? Email { get; set; }
         public string? Phone { get; set; }
         public Point? Location { get; set; }
+        public List<PostDto> Posts { get; set; } = new List<PostDto>();
     }
 }
