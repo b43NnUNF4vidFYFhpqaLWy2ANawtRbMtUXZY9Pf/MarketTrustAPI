@@ -50,10 +50,10 @@ namespace MarketTrustAPI.Repository
                 return null;
             }
 
-            post.Title = updatePostDto.Title;
-            post.Content = updatePostDto.Content;
+            post.Title = updatePostDto.Title ?? post.Title;
+            post.Content = updatePostDto.Content ?? post.Content;
             post.LastUpdatedAt = DateTime.Now;
-            post.CategoryId = updatePostDto.CategoryId;
+            post.CategoryId = updatePostDto.CategoryId ?? post.CategoryId;
 
             await _context.SaveChangesAsync();
 

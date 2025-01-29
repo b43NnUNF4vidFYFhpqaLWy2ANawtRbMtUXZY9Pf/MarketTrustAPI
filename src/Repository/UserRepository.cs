@@ -51,13 +51,13 @@ namespace MarketTrustAPI.Repository
                 return null;
             }
 
-            user.Name = updateUserDto.Name;
-            user.Email = updateUserDto.Email;
-            user.IsPublicEmail = updateUserDto.IsPublicEmail;
-            user.Phone = updateUserDto.Phone;
-            user.IsPublicPhone = updateUserDto.IsPublicPhone;
-            user.Location = updateUserDto.Location;
-            user.IsPublicLocation = updateUserDto.IsPublicLocation;
+            user.Name = updateUserDto.Name ?? user.Name;
+            user.Email = updateUserDto.Email ?? user.Email;
+            user.IsPublicEmail = updateUserDto.IsPublicEmail ?? user.IsPublicEmail;
+            user.Phone = updateUserDto.Phone ?? user.Phone;
+            user.IsPublicPhone = updateUserDto.IsPublicPhone ?? user.IsPublicPhone;
+            user.Location = updateUserDto.Location ?? user.Location;
+            user.IsPublicLocation = updateUserDto.IsPublicLocation ?? user.IsPublicLocation;
 
             await _context.SaveChangesAsync();
 

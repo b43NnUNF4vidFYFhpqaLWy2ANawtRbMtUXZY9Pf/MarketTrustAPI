@@ -36,7 +36,7 @@ namespace MarketTrustAPI.Controllers
             return Ok(postDtos);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
             Post? post = await _postRepository.GetByIdAsync(id);
@@ -49,7 +49,7 @@ namespace MarketTrustAPI.Controllers
             return Ok(post.ToPostDto());
         }
 
-        [HttpPost("{userId}/{categoryId}")]
+        [HttpPost("{userId:int}/{categoryId:int}")]
         public async Task<IActionResult> Create([FromRoute] int userId, [FromRoute] int categoryId, [FromBody] CreatePostDto createPostDto)
         {
             if (!await _userRepository.ExistAsync(userId))
@@ -69,10 +69,10 @@ namespace MarketTrustAPI.Controllers
             return CreatedAtAction(nameof(GetById), new { id = post.Id }, post.ToPostDto());
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{id:int}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdatePostDto updatePostDto)
         {
-            if (!await _categoryRepository.ExistAsync(updatePostDto.CategoryId))
+            if (updatePostDto.CategoryId != null && !await _categoryRepository.ExistAsync(updatePostDto.CategoryId.Value))
             {
                 return BadRequest("Category does not exist");
             }
@@ -87,7 +87,7 @@ namespace MarketTrustAPI.Controllers
             return Ok(post.ToPostDto());
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
             Post? post = await _postRepository.DeleteAsync(id);

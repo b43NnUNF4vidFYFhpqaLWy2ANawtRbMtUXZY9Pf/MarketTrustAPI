@@ -34,7 +34,7 @@ namespace MarketTrustAPI.Controllers
             return Ok(userDtos);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
             User? user = await _userRepository.GetByIdAsync(id);
@@ -57,7 +57,7 @@ namespace MarketTrustAPI.Controllers
             return CreatedAtAction(nameof(GetById), new { id = user.Id }, user.ToUserDto());
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{id:int}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateUserDto updateUserDto)
         {
             User? user = await _userRepository.UpdateAsync(id, updateUserDto);
@@ -70,7 +70,7 @@ namespace MarketTrustAPI.Controllers
             return Ok(user.ToUserDto());
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
             User? user = await _userRepository.DeleteAsync(id);
