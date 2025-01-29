@@ -23,5 +23,17 @@ namespace MarketTrustAPI.Mappers
                 PropertyValues = post.PropertyValues.Select(pv => pv.ToPropertyValueDto()).ToList()
             };
         }
+
+        public static Post ToPostFromCreateDto(this CreatePostDto createPostDto, int userId, int categoryId)
+        {
+            return new Post
+            {
+                Title = createPostDto.Title,
+                Content = createPostDto.Content,
+                CreatedAt = DateTime.Now,
+                UserId = userId,
+                CategoryId = categoryId
+            };
+        }
     }
 }

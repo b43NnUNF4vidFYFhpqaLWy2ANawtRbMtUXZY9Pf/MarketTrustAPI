@@ -78,5 +78,10 @@ namespace MarketTrustAPI.Repository
 
             return user;
         }
+
+        public async Task<bool> ExistAsync(int id)
+        {
+            return await _context.Users.AnyAsync(user => user.Id == id);
+        }
     }
 }

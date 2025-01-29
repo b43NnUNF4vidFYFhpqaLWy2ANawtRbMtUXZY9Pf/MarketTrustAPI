@@ -14,5 +14,6 @@ namespace MarketTrustAPI.Interfaces
         Task<User> CreateAsync(User user);
         Task<User?> UpdateAsync(int id, UpdateUserDto updateUserDto);
         Task<User?> DeleteAsync(int id);
+        Task<bool> ExistAsync(int id);
     }
 }
