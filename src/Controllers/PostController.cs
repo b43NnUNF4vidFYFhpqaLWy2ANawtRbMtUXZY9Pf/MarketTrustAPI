@@ -26,9 +26,9 @@ namespace MarketTrustAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] GetPostDto getPostDto)
         {
-            List<Post> posts = await _postRepository.GetAllAsync();
+            List<Post> posts = await _postRepository.GetAllAsync(getPostDto);
             List<PostDto> postDtos = posts
                 .Select(post => post.ToPostDto())
                 .ToList();

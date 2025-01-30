@@ -24,9 +24,9 @@ namespace MarketTrustAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] GetUserDto getUserDto)
         {
-            List<User> users = await _userRepository.GetAllAsync();
+            List<User> users = await _userRepository.GetAllAsync(getUserDto);
             List<UserDto> userDtos = users
                 .Select(user => user.ToUserDto())
                 .ToList();

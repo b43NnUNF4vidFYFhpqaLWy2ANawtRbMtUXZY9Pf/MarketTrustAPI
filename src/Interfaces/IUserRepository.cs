@@ -9,7 +9,7 @@ namespace MarketTrustAPI.Interfaces
 {
     public interface IUserRepository
     {
-        Task<List<User>> GetAllAsync();
+        Task<List<User>> GetAllAsync(GetUserDto getUserDto);
         Task<User?> GetByIdAsync(int id);
         Task<User> CreateAsync(User user);
         Task<User?> UpdateAsync(int id, UpdateUserDto updateUserDto);

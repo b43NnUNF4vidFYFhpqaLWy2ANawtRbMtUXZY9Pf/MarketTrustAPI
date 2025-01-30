@@ -19,11 +19,27 @@ namespace MarketTrustAPI.Repository
             _context = context;
         }
 
-        public async Task<List<Post>> GetAllAsync()
+        public async Task<List<Post>> GetAllAsync(GetPostDto getPostDto)
         {
-            return await _context.Posts
-                .Include(post => post.PropertyValues)
-                .ToListAsync();
+            IQueryable<Post> posts = _context.Posts.Include(post => post.PropertyValues);
+
+            if (!string.IsNullOrEmpty(getPostDto.Title))
+            {
+                posts = posts.Where(post => EF.Functions.Like(post.Title, $"%{getPostDto.Title}%"));
+            }
+
+            if (!string.IsNullOrEmpty(getPostDto.Content))
+            {
+                posts = posts.Where(post => EF.Functions.Like(post.Content, $"%{getPostDto.Content}%"));
+            }
+
+            if (getPostDto.Page.HasValue && getPostDto.PageSize.HasValue)
+            {
+                int skip = (getPostDto.Page.Value - 1) * getPostDto.PageSize.Value;
+                posts = posts.Skip(skip).Take(getPostDto.PageSize.Value);
+            }
+
+            return await posts.ToListAsync();
         }
 
         public async Task<Post?> GetByIdAsync(int id)
