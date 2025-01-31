@@ -30,7 +30,12 @@ namespace MarketTrustAPI.Repository
 
             if (!string.IsNullOrEmpty(getPostDto.Content))
             {
-                posts = posts.Where(post => EF.Functions.Like(post.Content, $"%{getPostDto.Content}%"));
+                posts = posts.Where(post => 
+                    EF.Functions.Like(post.Content, $"%{getPostDto.Content}%") || 
+                    post.PropertyValues.Any(propertyValue => 
+                        EF.Functions.Like(propertyValue.Value, $"%{getPostDto.Content}%")
+                    )
+                );
             }
 
             if (getPostDto.Page.HasValue && getPostDto.PageSize.HasValue)
