@@ -24,7 +24,7 @@ namespace MarketTrustAPI.Mappers
             };
         }
 
-        public static Post ToPostFromCreateDto(this CreatePostDto createPostDto, int userId, int categoryId)
+        public static Post ToPostFromCreateDto(this CreatePostDto createPostDto, string userId, int categoryId)
         {
             return new Post
             {

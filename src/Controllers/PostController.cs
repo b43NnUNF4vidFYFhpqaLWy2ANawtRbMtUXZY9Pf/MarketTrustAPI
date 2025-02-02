@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using MarketTrustAPI.Dtos.Post;
 using MarketTrustAPI.Interfaces;
 using MarketTrustAPI.Mappers;
 using MarketTrustAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MarketTrustAPI.Controllers
@@ -49,20 +51,28 @@ namespace MarketTrustAPI.Controllers
             return Ok(post.ToPostDto());
         }
 
-        [HttpPost("{userId:int}/{categoryId:int}")]
-        public async Task<IActionResult> Create([FromRoute] int userId, [FromRoute] int categoryId, [FromBody] CreatePostDto createPostDto)
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> Create([FromBody] CreatePostDto createPostDto)
         {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId == null)
+            {
+                return Unauthorized("User ID not found");
+            }
+
             if (!await _userRepository.ExistAsync(userId))
             {
                 return BadRequest("User does not exist");
             }
 
-            if (!await _categoryRepository.ExistAsync(categoryId))
+            if (!await _categoryRepository.ExistAsync(createPostDto.CategoryId))
             {
                 return BadRequest("Category does not exist");
             }
 
-            Post post = createPostDto.ToPostFromCreateDto(userId, categoryId);
+            Post post = createPostDto.ToPostFromCreateDto(userId, createPostDto.CategoryId);
 
             await _postRepository.CreateAsync(post);
 
@@ -70,34 +80,64 @@ namespace MarketTrustAPI.Controllers
         }
 
         [HttpPut("{id:int}")]
+        [Authorize]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdatePostDto updatePostDto)
         {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId == null)
+            {
+                return Unauthorized("User ID not found");
+            }
+
+            Post? post = await _postRepository.GetByIdAsync(id);
+
+            if (post != null && post.UserId != userId)
+            {
+                return Unauthorized("User is not the owner of the post");
+            }
+
             if (updatePostDto.CategoryId != null && !await _categoryRepository.ExistAsync(updatePostDto.CategoryId.Value))
             {
                 return BadRequest("Category does not exist");
             }
 
-            Post? post = await _postRepository.UpdateAsync(id, updatePostDto);
+            Post? updatedPost = await _postRepository.UpdateAsync(id, updatePostDto);
 
-            if (post == null)
+            if (updatedPost == null)
             {
                 return NotFound("Post not found");
             }
 
-            return Ok(post.ToPostDto());
+            return Ok(updatedPost.ToPostDto());
         }
 
         [HttpDelete("{id:int}")]
+        [Authorize]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            Post? post = await _postRepository.DeleteAsync(id);
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (post == null)
+            if (userId == null)
+            {
+                return Unauthorized("User ID not found");
+            }
+
+            Post? post = await _postRepository.GetByIdAsync(id);
+
+            if (post != null && post.UserId != userId)
+            {
+                return Unauthorized("User is not the owner of the post");
+            }
+
+            Post? deletedPost = await _postRepository.DeleteAsync(id);
+
+            if (deletedPost == null)
             {
                 return NotFound("Post not found");
             }
 
-            return Ok(post.ToPostDto());
+            return Ok(deletedPost.ToPostDto());
         }
     }
 }

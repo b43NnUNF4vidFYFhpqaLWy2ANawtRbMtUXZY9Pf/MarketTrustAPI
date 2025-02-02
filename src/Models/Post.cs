@@ -15,7 +15,7 @@ namespace MarketTrustAPI.Models
         public DateTime CreatedAt { get; set; }
         public DateTime? LastUpdatedAt { get; set; }
 
-        public int UserId { get; set; }
+        public string UserId { get; set; } = string.Empty;
         public User User { get; set; } = null!;
         public int CategoryId { get; set; }
         public Category Category { get; set; } = null!;

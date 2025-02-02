@@ -6,6 +6,7 @@
   - [Table of Contents](#table-of-contents)
   - [Development](#development)
     - [Database](#database)
+    - [JWT](#jwt)
 
 ## Development
 
@@ -23,4 +24,12 @@ $ dotnet ef migrations add init
 $ dotnet ef database update
 $ dotnet ef database drop
 $ dotnet ef migrations remove
+```
+
+### JWT
+
+```sh
+$ dotnet user-secrets set "JWT:Issuer" "http://localhost:5167"
+$ dotnet user-secrets set "JWT:Audience" "http://localhost:5167"
+$ dotnet user-secrets set "JWT:SigningKey" "devSigningKey"
 ```

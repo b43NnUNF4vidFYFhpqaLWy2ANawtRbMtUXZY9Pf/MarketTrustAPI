@@ -15,7 +15,7 @@ namespace MarketTrustAPI.Dtos.Post
         public DateTime CreatedAt { get; set; }
         public DateTime? LastUpdatedAt { get; set; }
 
-        public int UserId { get; set; }
+        public string UserId { get; set; } = string.Empty;
         public int CategoryId { get; set; }
         public List<PropertyValueDto> PropertyValues { get; set; } = new List<PropertyValueDto>();
     }

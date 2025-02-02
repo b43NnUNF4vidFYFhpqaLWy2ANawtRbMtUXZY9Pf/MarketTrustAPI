@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using MarketTrustAPI.Data;
 using MarketTrustAPI.Dtos.User;
 using MarketTrustAPI.Interfaces;
 using MarketTrustAPI.Mappers;
 using MarketTrustAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -34,8 +36,8 @@ namespace MarketTrustAPI.Controllers
             return Ok(userDtos);
         }
 
-        [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetById([FromRoute] int id)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById([FromRoute] string id)
         {
             User? user = await _userRepository.GetByIdAsync(id);
 
@@ -47,32 +49,38 @@ namespace MarketTrustAPI.Controllers
             return Ok(user.ToUserDto());
         }
             
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateUserDto createUserDto)
+        [HttpPut]
+        [Authorize]
+        public async Task<IActionResult> Update([FromBody] UpdateUserDto updateUserDto)
         {
-            User user = createUserDto.ToUserFromCreateDto();
+            string? id = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            await _userRepository.CreateAsync(user);
+            if (id == null)
+            {
+                return Unauthorized("User ID not found");
+            }
 
-            return CreatedAtAction(nameof(GetById), new { id = user.Id }, user.ToUserDto());
-        }
-
-        [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateUserDto updateUserDto)
-        {
             User? user = await _userRepository.UpdateAsync(id, updateUserDto);
 
             if (user == null)
             {
-                return NotFound();
+                return BadRequest();
             }
 
             return Ok(user.ToUserDto());
         }
 
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> Delete([FromRoute] int id)
+        [HttpDelete]
+        [Authorize]
+        public async Task<IActionResult> Delete()
         {
+            string? id = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (id == null)
+            {
+                return Unauthorized("User ID not found");
+            }
+
             User? user = await _userRepository.DeleteAsync(id);
 
             if (user == null)

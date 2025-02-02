@@ -10,10 +10,9 @@ namespace MarketTrustAPI.Interfaces
     public interface IUserRepository
     {
         Task<List<User>> GetAllAsync(GetUserDto getUserDto);
-        Task<User?> GetByIdAsync(int id);
-        Task<User> CreateAsync(User user);
-        Task<User?> UpdateAsync(int id, UpdateUserDto updateUserDto);
-        Task<User?> DeleteAsync(int id);
-        Task<bool> ExistAsync(int id);
+        Task<User?> GetByIdAsync(string id);
+        Task<User?> UpdateAsync(string id, UpdateUserDto updateUserDto);
+        Task<User?> DeleteAsync(string id);
+        Task<bool> ExistAsync(string id);
     }
 }

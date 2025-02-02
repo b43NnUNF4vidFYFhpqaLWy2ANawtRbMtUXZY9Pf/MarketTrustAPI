@@ -3,17 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MarketTrustAPI.SpatialIndexManager;
+using Microsoft.AspNetCore.Identity;
 using NetTopologySuite.Geometries;
 
 namespace MarketTrustAPI.Models
 {
-    public class User : ILocatable
+    public class User : IdentityUser, ILocatable
     {
-        public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public string? Email { get; set; }
         public bool IsPublicEmail { get; set; }
-        public string? Phone { get; set; }
         public bool IsPublicPhone { get; set; }
         public Point? Location { get; set; }
         public bool IsPublicLocation { get; set; }

@@ -14,25 +14,11 @@ namespace MarketTrustAPI.Mappers
             return new UserDto
             {
                 Id = user.Id,
-                Name = user.Name,
+                Name = user.UserName ?? string.Empty,
                 Email = user.IsPublicEmail ? user.Email : null,
-                Phone = user.IsPublicPhone ? user.Phone : null,
+                Phone = user.IsPublicPhone ? user.PhoneNumber : null,
                 Location = user.IsPublicLocation ? user.Location : null,
                 Posts = user.Posts.Select(post => post.ToPostDto()).ToList()
-            };
-        }
-
-        public static User ToUserFromCreateDto(this CreateUserDto createUserDto)
-        {
-            return new User
-            {
-                Name = createUserDto.Name,
-                Email = createUserDto.Email,
-                IsPublicEmail = createUserDto.IsPublicEmail,
-                Phone = createUserDto.Phone,
-                IsPublicPhone = createUserDto.IsPublicPhone,
-                Location = createUserDto.Location,
-                IsPublicLocation = createUserDto.IsPublicLocation
             };
         }
     }

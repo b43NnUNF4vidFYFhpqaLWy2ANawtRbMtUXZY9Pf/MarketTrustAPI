@@ -12,5 +12,7 @@ namespace MarketTrustAPI.Dtos.Post
         [Required]
         public string Title { get; set; } = string.Empty;
         public string Content { get; set; } = string.Empty;
+        [Required]
+        public int CategoryId { get; set; }
     }
 }
