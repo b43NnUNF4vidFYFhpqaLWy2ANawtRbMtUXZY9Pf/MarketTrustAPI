@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using MarketTrustAPI.Dtos.Post;
+using MarketTrustAPI.Dtos.PropertyValue;
 using MarketTrustAPI.Interfaces;
 using MarketTrustAPI.Mappers;
 using MarketTrustAPI.Models;
@@ -90,9 +91,7 @@ namespace MarketTrustAPI.Controllers
                 return Unauthorized("User ID not found");
             }
 
-            Post? post = await _postRepository.GetByIdAsync(id);
-
-            if (post != null && post.UserId != userId)
+            if (!await _postRepository.UserOwnsPostAsync(id, userId))
             {
                 return Unauthorized("User is not the owner of the post");
             }
@@ -102,14 +101,14 @@ namespace MarketTrustAPI.Controllers
                 return BadRequest("Category does not exist");
             }
 
-            Post? updatedPost = await _postRepository.UpdateAsync(id, updatePostDto);
+            Post? post = await _postRepository.UpdateAsync(id, updatePostDto);
 
-            if (updatedPost == null)
+            if (post == null)
             {
                 return NotFound("Post not found");
             }
 
-            return Ok(updatedPost.ToPostDto());
+            return Ok(post.ToPostDto());
         }
 
         [HttpDelete("{id:int}")]
@@ -123,21 +122,104 @@ namespace MarketTrustAPI.Controllers
                 return Unauthorized("User ID not found");
             }
 
-            Post? post = await _postRepository.GetByIdAsync(id);
-
-            if (post != null && post.UserId != userId)
+            if (!await _postRepository.UserOwnsPostAsync(id, userId))
             {
                 return Unauthorized("User is not the owner of the post");
             }
 
-            Post? deletedPost = await _postRepository.DeleteAsync(id);
+            Post? post = await _postRepository.DeleteAsync(id);
 
-            if (deletedPost == null)
+            if (post == null)
             {
                 return NotFound("Post not found");
             }
 
-            return Ok(deletedPost.ToPostDto());
+            return Ok(post.ToPostDto());
+        }
+
+        [HttpPost("{id:int}")]
+        [Authorize]
+        public async Task<IActionResult> AddPropertyValue([FromRoute] int id, [FromBody] AddPropertyValueDto addPropertyValueDto)
+        {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId == null)
+            {
+                return Unauthorized("User ID not found");
+            }
+
+            if (!await _postRepository.UserOwnsPostAsync(id, userId))
+            {
+                return Unauthorized("User is not the owner of the post");
+            }
+
+            if (await _postRepository.PropertyNameExistsAsync(id, addPropertyValueDto.Name))
+            {
+                return BadRequest("Property name already exists");
+            }
+
+            PropertyValue propertyValue = addPropertyValueDto.ToPropertyValueFromAddDto(id);
+
+            Post? post = await _postRepository.AddPropertyValueAsync(id, propertyValue);
+
+            if (post == null)
+            {
+                return NotFound("Post not found");
+            }
+
+            return Ok(post.ToPostDto());
+        }
+
+        [HttpPut("{postId:int}/{propertyValueId:int}")]
+        [Authorize]
+        public async Task<IActionResult> UpdatePropertyValue([FromRoute] int postId, [FromRoute] int propertyValueId, [FromBody] UpdatePropertyValueDto updatePropertyValueDto)
+        {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId == null)
+            {
+                return Unauthorized("User ID not found");
+            }
+
+            if (!await _postRepository.UserOwnsPostAsync(postId, userId))
+            {
+                return Unauthorized("User is not the owner of the post");
+            }
+
+            Post? post = await _postRepository.UpdatePropertyValueAsync(postId, propertyValueId, updatePropertyValueDto);
+
+            if (post == null)
+            {
+                return NotFound("Post or property not found");
+            }
+
+            return Ok(post.ToPostDto());
+        }
+
+        [HttpDelete("{postId:int}/{propertyValueId:int}")]
+        [Authorize]
+        public async Task<IActionResult> DeletePropertyValue([FromRoute] int postId, [FromRoute] int propertyValueId)
+        {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId == null)
+            {
+                return Unauthorized("User ID not found");
+            }
+
+            if (!await _postRepository.UserOwnsPostAsync(postId, userId))
+            {
+                return Unauthorized("User is not the owner of the post");
+            }
+
+            Post? post = await _postRepository.DeletePropertyValueAsync(postId, propertyValueId);
+
+            if (post == null)
+            {
+                return NotFound("Post or property not found");
+            }
+
+            return Ok(post.ToPostDto());
         }
     }
 }

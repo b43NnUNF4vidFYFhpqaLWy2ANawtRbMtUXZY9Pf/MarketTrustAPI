@@ -19,5 +19,15 @@ namespace MarketTrustAPI.Mappers
                 PostId = propertyValue.PostId
             };
         }
+
+        public static PropertyValue ToPropertyValueFromAddDto(this AddPropertyValueDto addPropertyValueDto, int postId)
+        {
+            return new PropertyValue
+            {
+                Name = addPropertyValueDto.Name,
+                Value = addPropertyValueDto.Value,
+                PostId = postId
+            };
+        }
     }
 }

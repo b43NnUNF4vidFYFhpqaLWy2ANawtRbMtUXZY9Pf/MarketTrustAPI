@@ -17,6 +17,7 @@ namespace MarketTrustAPI.Data
 
         public DbSet<Category> Categories { get; set; }
         public DbSet<Post> Posts { get; set; }
+        public DbSet<PropertyValue> PropertyValues { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

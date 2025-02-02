@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MarketTrustAPI.Data;
 using MarketTrustAPI.Dtos.Post;
+using MarketTrustAPI.Dtos.PropertyValue;
 using MarketTrustAPI.Interfaces;
 using MarketTrustAPI.Models;
 using Microsoft.EntityFrameworkCore;
@@ -94,6 +95,92 @@ namespace MarketTrustAPI.Repository
             await _context.SaveChangesAsync();
 
             return post;
+        }
+
+        public async Task<Post?> AddPropertyValueAsync(int id, PropertyValue propertyValue)
+        {
+            Post? post = await _context.Posts
+                .Include(post => post.PropertyValues)
+                .FirstOrDefaultAsync(post => post.Id == id);
+
+            if (post == null)
+            {
+                return null;
+            }
+
+            post.PropertyValues.Add(propertyValue);
+            post.LastUpdatedAt = DateTime.Now;
+            await _context.SaveChangesAsync();
+
+            return post;
+        }
+
+        public async Task<Post?> UpdatePropertyValueAsync(int postId, int propertyValueId, UpdatePropertyValueDto updatePropertyValueDto)
+        {
+            Post? post = await _context.Posts
+                .Include(post => post.PropertyValues)
+                .FirstOrDefaultAsync(post => post.Id == postId);
+
+            if (post == null)
+            {
+                return null;
+            }
+
+            PropertyValue? propertyValue = post.PropertyValues.FirstOrDefault(propertyValue => propertyValue.Id == propertyValueId);
+
+            if (propertyValue == null)
+            {
+                return null;
+            }
+
+            propertyValue.Name = updatePropertyValueDto.Name ?? propertyValue.Name;
+            propertyValue.Value = updatePropertyValueDto.Value ?? propertyValue.Value;
+            post.LastUpdatedAt = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+
+            return post;
+        }
+
+        public async Task<Post?> DeletePropertyValueAsync(int postId, int propertyValueId)
+        {
+            Post? post = await _context.Posts
+                .Include(post => post.PropertyValues)
+                .FirstOrDefaultAsync(post => post.Id == postId);
+
+            if (post == null)
+            {
+                return null;
+            }
+
+            PropertyValue? propertyValue = post.PropertyValues.FirstOrDefault(propertyValue => propertyValue.Id == propertyValueId);
+
+            if (propertyValue == null)
+            {
+                return null;
+            }
+
+            post.PropertyValues.Remove(propertyValue);
+            post.LastUpdatedAt = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+
+            return post;
+        }
+
+        public async Task<bool> ExistAsync(int id)
+        {
+            return await _context.Posts.AnyAsync(post => post.Id == id);
+        }
+
+        public async Task<bool> UserOwnsPostAsync(int postId, string userId)
+        {
+            return await _context.Posts.AnyAsync(post => post.Id == postId && post.UserId == userId);
+        }
+
+        public async Task<bool> PropertyNameExistsAsync(int postId, string name)
+        {
+            return await _context.PropertyValues.AnyAsync(propertyValue => propertyValue.PostId == postId && propertyValue.Name.ToLower() == name.ToLower());
         }
     }
 }
