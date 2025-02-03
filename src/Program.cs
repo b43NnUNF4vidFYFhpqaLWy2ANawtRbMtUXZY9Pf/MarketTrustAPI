@@ -9,7 +9,22 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
+string allowedSpecificOrigins = "AllowedSpecificOrigins";
+
 var builder = WebApplication.CreateBuilder(args);
+
+string[] allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? [];
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(allowedSpecificOrigins,
+        policy =>
+            {
+                policy.WithOrigins(allowedOrigins)
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+            });
+});
 
 builder.Services.AddControllers()
     .AddJsonOptions(options => {
@@ -96,6 +111,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors(allowedSpecificOrigins);
 
 app.UseAuthentication();
 app.UseAuthorization();
