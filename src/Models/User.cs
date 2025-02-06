@@ -14,8 +14,11 @@ namespace MarketTrustAPI.Models
         public bool IsPublicPhone { get; set; }
         public Point? Location { get; set; }
         public bool IsPublicLocation { get; set; }
+        public bool IsPretrusted { get; set; } = false;
 
         public List<Post> Posts { get; set; } = new List<Post>();
+        public List<TrustRating> TrustRatingsAsTrustor { get; set; } = new List<TrustRating>();
+        public List<TrustRating> TrustRatingsAsTrustee { get; set; } = new List<TrustRating>();
 
         public Point? GetLocation()
         {

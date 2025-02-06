@@ -93,7 +93,12 @@ namespace MarketTrustAPI.Repository
 
         public async Task<User?> DeleteAsync(string id)
         {
-            User? user = await _context.Users.FindAsync(id);
+            // Due to the delete behavior being client cascade,
+            // the TrustRatings must be loaded too for EF Core
+            User? user = await _context.Users
+                .Include(user => user.TrustRatingsAsTrustor)
+                .Include(user => user.TrustRatingsAsTrustee)
+                .FirstOrDefaultAsync(user => user.Id == id);
 
             if (user == null)
             {

@@ -15,6 +15,7 @@ namespace MarketTrustAPI.Data
             : base(dbContextOptions)
         {}
 
+        public DbSet<TrustRating> TrustRatings { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Post> Posts { get; set; }
         public DbSet<PropertyValue> PropertyValues { get; set; }
@@ -39,6 +40,18 @@ namespace MarketTrustAPI.Data
                 }
             ];
             builder.Entity<IdentityRole>().HasData(roles);
+
+            builder.Entity<TrustRating>()
+                .HasOne(tr => tr.Trustor)
+                .WithMany(u => u.TrustRatingsAsTrustor)
+                .HasForeignKey(tr => tr.TrustorId)
+                .OnDelete(DeleteBehavior.ClientCascade);
+
+            builder.Entity<TrustRating>()
+                .HasOne(tr => tr.Trustee)
+                .WithMany(u => u.TrustRatingsAsTrustee)
+                .HasForeignKey(tr => tr.TrusteeId)
+                .OnDelete(DeleteBehavior.ClientCascade);
         }
     }
 }
