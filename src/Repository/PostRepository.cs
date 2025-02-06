@@ -14,10 +14,12 @@ namespace MarketTrustAPI.Repository
     public class PostRepository : IPostRepository
     {
         private readonly ApplicationDBContext _context;
+        private readonly ICategoryRepository _categoryRepository;
 
-        public PostRepository(ApplicationDBContext context)
+        public PostRepository(ApplicationDBContext context, ICategoryRepository categoryRepository)
         {
             _context = context;
+            _categoryRepository = categoryRepository;
         }
 
         public async Task<List<Post>> GetAllAsync(GetPostDto getPostDto)
@@ -37,6 +39,15 @@ namespace MarketTrustAPI.Repository
                         EF.Functions.Like(propertyValue.Value, $"%{getPostDto.Content}%")
                     )
                 );
+            }
+
+            if (getPostDto.CategoryId.HasValue)
+            {
+                List<Category> descendants = await _categoryRepository.GetDescendantsAsync(getPostDto.CategoryId.Value);
+                List<int> descendantCategoryIds = descendants.Select(category => category.Id).ToList();
+                descendantCategoryIds.Add(getPostDto.CategoryId.Value);
+
+                posts = posts.Where(post => descendantCategoryIds.Contains(post.CategoryId));
             }
 
             if (getPostDto.Page.HasValue && getPostDto.PageSize.HasValue)

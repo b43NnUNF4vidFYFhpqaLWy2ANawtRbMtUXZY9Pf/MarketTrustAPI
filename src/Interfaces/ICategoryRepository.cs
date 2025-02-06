@@ -2,11 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MarketTrustAPI.Models;
 
 namespace MarketTrustAPI.Interfaces
 {
     public interface ICategoryRepository
     {
-        Task<bool> ExistAsync(int id);
+        public Task<Category?> GetByIdAsync(int id);
+        public Task<List<Category>> GetDescendantsAsync(int id);
+        public Task<bool> ExistAsync(int id);
     }
 }

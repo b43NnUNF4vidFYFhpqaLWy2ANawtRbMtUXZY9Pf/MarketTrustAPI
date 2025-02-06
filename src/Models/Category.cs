@@ -12,6 +12,7 @@ namespace MarketTrustAPI.Models
 
         public int? ParentId { get; set; }
         public Category? Parent { get; set; }
+        public List<Category> Children { get; set; } = new List<Category>();
         public List<Property> Properties { get; set; } = new List<Property>();
     }
 }
