@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using MarketTrustAPI.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MarketTrustAPI.Controllers
@@ -33,12 +35,20 @@ namespace MarketTrustAPI.Controllers
             }
         }
 
-        [HttpGet("personal/{trustorId}/{trusteeId}/{d}")]
-        public async Task<IActionResult> GetPersonalTrust(string trustorId, string trusteeId, double d)
+        [HttpGet("personal/{trusteeId}/{d}")]
+        [Authorize]
+        public async Task<IActionResult> GetPersonalTrust(string trusteeId, double d)
         {
             if (d < 0 || d > 1)
             {
                 return BadRequest("d must be between 0 and 1");
+            }
+
+            string? trustorId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (trustorId == null)
+            {
+                return Unauthorized("User ID not found");
             }
 
             double? personalTrust = await reputationService.GetPersonalTrustAsync(trustorId, trusteeId, d);
