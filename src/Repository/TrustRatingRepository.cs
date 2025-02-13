@@ -6,6 +6,7 @@ using MarketTrustAPI.Data;
 using MarketTrustAPI.Dtos.TrustRating;
 using MarketTrustAPI.Interfaces;
 using MarketTrustAPI.Models;
+using MathNet.Numerics.LinearAlgebra;
 using Microsoft.EntityFrameworkCore;
 
 namespace MarketTrustAPI.Repository
@@ -13,10 +14,12 @@ namespace MarketTrustAPI.Repository
     public class TrustRatingRepository : ITrustRatingRepository
     {
         private readonly ApplicationDBContext _context;
+        private readonly IReputationService _reputationService;
 
-        public TrustRatingRepository(ApplicationDBContext context)
+        public TrustRatingRepository(ApplicationDBContext context, IReputationService reputationService)
         {
             _context = context;
+            _reputationService = reputationService;
         }
 
         public async Task<List<TrustRating>> GetAllAsync(GetTrustRatingDto getTrustRatingDto)
@@ -57,6 +60,8 @@ namespace MarketTrustAPI.Repository
             await _context.TrustRatings.AddAsync(trustRating);
             await _context.SaveChangesAsync();
 
+            await _reputationService.UpdateAsync();
+
             return trustRating;
         }
 
@@ -74,6 +79,8 @@ namespace MarketTrustAPI.Repository
 
             await _context.SaveChangesAsync();
 
+            await _reputationService.UpdateAsync();
+
             return trustRating;
         }
 
@@ -88,6 +95,8 @@ namespace MarketTrustAPI.Repository
 
             _context.TrustRatings.Remove(trustRating);
             await _context.SaveChangesAsync();
+
+            await _reputationService.UpdateAsync();
 
             return trustRating;
         }

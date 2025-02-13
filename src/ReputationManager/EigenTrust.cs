@@ -2,32 +2,25 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MarketTrustAPI.Configuration;
 using MathNet.Numerics.LinearAlgebra;
+using Microsoft.Extensions.Options;
 
 namespace MarketTrustAPI.ReputationManager
 {
     public class EigenTrust : IReputationManager
     {
-        private readonly Matrix<double> _localTrust;
+        private Matrix<double>? _localTrust;
         private Matrix<double>? _normalizedLocalTrust;
-        private readonly Vector<double> _preTrust;
+        private Vector<double>? _preTrust;
         private Vector<double>? _globalTrust;
         private readonly double _alpha;
         private readonly double _epsilon;
         private readonly int _maxIterations;
+        private Dictionary<string, int>? _userIdToTrustIndex;
 
-        public EigenTrust(Matrix<double> localTrust, bool[] preTrusted, double alpha, double epsilon, int maxIterations)
+        public EigenTrust(double alpha, double epsilon, int maxIterations)
         {
-            if (localTrust.RowCount != localTrust.ColumnCount)
-            {
-                throw new ArgumentException("localTrust must be a square matrix");
-            }
-
-            if (localTrust.RowCount != preTrusted.Length)
-            {
-                throw new ArgumentException("preTrusted must have the same length as the rows of localTrust");
-            }
-
             if (alpha <= 0 || alpha > 1)
             {
                 throw new ArgumentException("alpha must be in the range (0, 1]");
@@ -43,18 +36,52 @@ namespace MarketTrustAPI.ReputationManager
                 throw new ArgumentException("maxIterations must be strictly positive");
             }
 
-            _localTrust = localTrust;
-            int preTrustedCount = preTrusted.Count(x => x);
-            _preTrust = Vector<double>.Build.Dense(localTrust.RowCount, i => preTrusted[i] ? 1.0 / preTrustedCount : 0.0);
             _alpha = alpha;
             _epsilon = epsilon;
             _maxIterations = maxIterations;
         }
 
-        public void Update()
+        public EigenTrust(IOptions<EigenTrustConfig> config)
+            : this(config.Value.Alpha, config.Value.Epsilon, config.Value.MaxIterations)
         {
+        }
+
+        public bool IsInitialized()
+        {
+            return _localTrust != null &&
+                   _preTrust != null &&
+                   _userIdToTrustIndex != null;
+        }
+
+        public void Update(Matrix<double> localTrust, bool[] pretrusted, Dictionary<string, int> userIdToTrustIndex)
+        {
+            if (localTrust.RowCount != localTrust.ColumnCount)
+            {
+                throw new ArgumentException("localTrust must be a square matrix");
+            }
+
+            if (localTrust.RowCount != pretrusted.Length)
+            {
+                throw new ArgumentException("preTrusted must have the same length as the rows of localTrust");
+            }
+
+            _localTrust = localTrust;
+            int preTrustedCount = pretrusted.Count(x => x);
+            _preTrust = Vector<double>.Build.Dense(localTrust.RowCount, i => pretrusted[i] ? 1.0 / preTrustedCount : 0.0);
+            _userIdToTrustIndex = userIdToTrustIndex;
+
             UpdateNormalizedLocalTrust();
             UpdateGlobalTrust();
+        }
+
+        public Dictionary<string, int> GetUserIdToTrustIndex()
+        {
+            if (_userIdToTrustIndex == null)
+            {
+                throw new InvalidOperationException("userIdToTrustIndex must be set before calling GetUserIdToTrustIndex");
+            }
+
+            return _userIdToTrustIndex;
         }
 
         public Vector<double> GetGlobalTrust()
@@ -69,6 +96,11 @@ namespace MarketTrustAPI.ReputationManager
 
         public Vector<double> GetPersonalTrust(int i, double d)
         {
+            if (_localTrust == null)
+            {
+                throw new InvalidOperationException("localTrust must be set before calling GetPersonalTrust");
+            }
+
             if (_globalTrust == null)
             {
                 throw new InvalidOperationException("globalTrust must be set before calling GetPersonalTrust");
@@ -95,6 +127,16 @@ namespace MarketTrustAPI.ReputationManager
 
         private void UpdateNormalizedLocalTrust()
         {
+            if (_localTrust == null)
+            {
+                throw new InvalidOperationException("localTrust must be set before calling UpdateNormalizedLocalTrust");
+            }
+
+            if (_preTrust == null)
+            {
+                throw new InvalidOperationException("preTrust must be set before calling UpdateNormalizedLocalTrust");
+            }
+
             // c_{ij} = \frac{\max(s_{ij}, 0)}{\sum_j max(s_{ij}, 0)}
             Matrix<double> c = Matrix<double>.Build.Dense(_localTrust.RowCount, _localTrust.ColumnCount);
             for (int i = 0; i < _localTrust.RowCount; i++)
@@ -125,6 +167,11 @@ namespace MarketTrustAPI.ReputationManager
             if (_normalizedLocalTrust == null)
             {
                 throw new InvalidOperationException("normalizedLocalTrust must be set before calling UpdateGlobalTrust");
+            }
+
+            if (_preTrust == null)
+            {
+                throw new InvalidOperationException("preTrust must be set before calling UpdateGlobalTrust");
             }
 
             Vector<double> t = _preTrust;

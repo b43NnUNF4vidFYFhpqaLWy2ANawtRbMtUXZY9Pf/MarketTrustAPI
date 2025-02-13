@@ -1,11 +1,14 @@
+using MarketTrustAPI.Configuration;
 using MarketTrustAPI.Data;
 using MarketTrustAPI.Interfaces;
 using MarketTrustAPI.Models;
 using MarketTrustAPI.Repository;
+using MarketTrustAPI.ReputationManager;
 using MarketTrustAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
@@ -97,7 +100,15 @@ builder.Services.AddAuthentication(options => {
         };
     });
 
+builder.Services.Configure<EigenTrustConfig>(builder.Configuration.GetSection("EigenTrust"));
+
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddSingleton<IReputationManager>(sp => {
+    EigenTrustConfig config = sp.GetRequiredService<IOptions<EigenTrustConfig>>().Value;
+    return new EigenTrust(config.Alpha, config.Epsilon, config.MaxIterations);
+});
+builder.Services.AddScoped<IReputationService, ReputationService>();
+builder.Services.AddScoped<IReputationRepository, ReputationRepository>();
 builder.Services.AddScoped<ITrustRatingRepository, TrustRatingRepository>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();

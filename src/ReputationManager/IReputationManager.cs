@@ -8,7 +8,9 @@ namespace MarketTrustAPI.ReputationManager
 {
     public interface IReputationManager
     {
-        public void Update();
+        public bool IsInitialized();
+        public void Update(Matrix<double> localTrust, bool[] pretrusted, Dictionary<string, int> userIdToTrustIndex);
+        public Dictionary<string, int> GetUserIdToTrustIndex();
         public Vector<double> GetGlobalTrust();
         public Vector<double> GetPersonalTrust(int i, double d);
     }

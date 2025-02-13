@@ -10,6 +10,10 @@ namespace ReputationManagerTests
         [Fact]
         public void GetGlobalTrust_IsTransitive()
         {
+            double alpha = 0.5;
+            double epsilon = 1e-3;
+            int maxIterations = 1;
+            EigenTrust eigenTrust = new EigenTrust(alpha, epsilon, maxIterations);
             Matrix<double> localTrust = Matrix<double>.Build.DenseOfArray(new double[,]
             {
                 {0.0, 1.0, 0.0},
@@ -17,12 +21,8 @@ namespace ReputationManagerTests
                 {0.0, 0.0, 0.0}
             });
             bool[] preTrusted = [false, true, false];
-            double alpha = 0.5;
-            double epsilon = 1e-3;
-            int maxIterations = 1;
-            EigenTrust eigenTrust = new EigenTrust(localTrust, preTrusted, alpha, epsilon, maxIterations);
 
-            eigenTrust.Update();
+            eigenTrust.Update(localTrust, preTrusted, new Dictionary<string, int>());
             Vector<double> globalTrust = eigenTrust.GetGlobalTrust();
             
             Assert.Equal(0.0, globalTrust[0], 3);
