@@ -13,6 +13,8 @@ namespace MarketTrustAPI.Dtos.Post
         public string? Title { get; set; }
         public string? Content { get; set; }
         public int? CategoryId { get; set; }
+        [Range(0, 1, ErrorMessage = "d must be between 0 and 1")]
+        public double? D { get; set; }
         [Range(1, int.MaxValue, ErrorMessage = "Page number must be atleast 1")]
         public int? Page { get; set; }
         [Range(1, int.MaxValue, ErrorMessage = "Page size must be atleast 1")]

@@ -20,28 +20,43 @@ namespace MarketTrustAPI.Controllers
         private readonly IPostRepository _postRepository;
         private readonly IUserRepository _userRepository;
         private readonly ICategoryRepository _categoryRepository;
+        private readonly IReputationService _reputationService;
 
-        public PostController(IPostRepository postRepository, IUserRepository userRepository, ICategoryRepository categoryRepository)
+        public PostController(IPostRepository postRepository, IUserRepository userRepository, ICategoryRepository categoryRepository, IReputationService reputationService)
         {
             _postRepository = postRepository;
             _userRepository = userRepository;
             _categoryRepository = categoryRepository;
+            _reputationService = reputationService;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] GetPostDto getPostDto)
         {
+            // No authorization required, but if user is logged in, get their ID
+            // to compute the personal trust of each of the posts
+            string? trustorId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
             List<Post> posts = await _postRepository.GetAllAsync(getPostDto);
-            List<PostDto> postDtos = posts
-                .Select(post => post.ToPostDto())
-                .ToList();
+            PostDto[] postDtos = await Task.WhenAll(posts
+                .Select(async post => {
+                    PostDto postDto = post.ToPostDto();
+                    postDto.GlobalTrust = await _reputationService.GetGlobalTrustAsync(post.UserId);
+                    postDto.PersonalTrust = trustorId != null && getPostDto.D.HasValue
+                        ? await _reputationService.GetPersonalTrustAsync(trustorId, post.UserId, getPostDto.D.Value)
+                        : null;
+
+                    return postDto;
+                }));
 
             return Ok(postDtos);
         }
 
         [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetById([FromRoute] int id)
+        public async Task<IActionResult> GetById([FromRoute] int id, [FromQuery] GetPostByIdDto getPostByIdDto)
         {
+            string? trustorId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
             Post? post = await _postRepository.GetByIdAsync(id);
 
             if (post == null)
@@ -49,7 +64,13 @@ namespace MarketTrustAPI.Controllers
                 return NotFound();
             }
 
-            return Ok(post.ToPostDto());
+            PostDto postDto = post.ToPostDto();
+            postDto.GlobalTrust = await _reputationService.GetGlobalTrustAsync(post.UserId);
+            postDto.PersonalTrust = trustorId != null && getPostByIdDto.D.HasValue
+                ? await _reputationService.GetPersonalTrustAsync(trustorId, post.UserId, getPostByIdDto.D.Value)
+                : null;
+
+            return Ok(postDto);
         }
 
         [HttpPost]
