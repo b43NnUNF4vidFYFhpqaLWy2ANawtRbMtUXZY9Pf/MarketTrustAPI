@@ -19,7 +19,14 @@ namespace MarketTrustAPI.Services
         public TokenService(IConfiguration config)
         {
             _config = config;
-            _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWT:SigningKey"]));
+
+            string? signingKey = _config["JWT:SigningKey"];
+            if (string.IsNullOrEmpty(signingKey))
+            {
+                throw new ArgumentNullException("JWT:SigningKey is missing or empty.");
+            }
+
+            _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey));
         }
 
         public string CreateToken(User user)

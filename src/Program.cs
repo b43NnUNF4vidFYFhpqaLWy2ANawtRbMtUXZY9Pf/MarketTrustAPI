@@ -1,3 +1,4 @@
+using System.Text;
 using MarketTrustAPI.Configuration;
 using MarketTrustAPI.Data;
 using MarketTrustAPI.Interfaces;
@@ -89,6 +90,12 @@ builder.Services.AddAuthentication(options => {
     options.DefaultSignOutScheme = JwtBearerDefaults.AuthenticationScheme;
 })
     .AddJwtBearer(options => {
+        string? signingKey = builder.Configuration["JWT:SigningKey"];
+        if (string.IsNullOrEmpty(signingKey))
+        {
+            throw new ArgumentNullException("JWT:SigningKey is missing or empty.");
+        }
+
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -96,7 +103,7 @@ builder.Services.AddAuthentication(options => {
             ValidateAudience = true,
             ValidAudience = builder.Configuration["JWT:Audience"],
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JWT:SigningKey"])),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey)),
             ValidateLifetime = true
         };
     });
