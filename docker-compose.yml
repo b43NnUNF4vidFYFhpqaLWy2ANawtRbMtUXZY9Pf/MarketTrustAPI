@@ -1,13 +1,38 @@
 services:
   web_api:
-    image: markettrust_api
-    container_name: markettrust_api
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "8080:8080"
       - "8081:8081"
-  db:
+    environment:
+      - AllowedOrigins=${ALLOWED_ORIGINS}
+      - ConnectionStrings__DefaultConnection=${DB_CONNECTION_STRING}
+      - JWT__Issuer=${JWT_ISSUER}
+      - JWT__Audience=${JWT_AUDIENCE}
+      - JWT__SigningKey=${JWT_SIGNING_KEY}
+    networks:
+      - markettrust_network
+    volumes:
+      - dataprotection-keys:/home/appuser/.aspnet/DataProtection-Keys
+    depends_on:
+      - sqlserver
+  sqlserver:
     image: "mcr.microsoft.com/mssql/server:2022-latest"
-    container_name: markettrust_db
+    ports:
+      - "1435:1433"
     environment:
       - ACCEPT_EULA=Y
-      - SA_PASSWORD=${SA_PASSWORD}
+      - MSSQL_SA_PASSWORD=${SA_PASSWORD}
+    networks:
+      - markettrust_network
+    volumes:
+      - mssql-data:/var/opt/mssql
+
+networks:
+  markettrust_network:
+
+volumes:
+  mssql-data:
+  dataprotection-keys:

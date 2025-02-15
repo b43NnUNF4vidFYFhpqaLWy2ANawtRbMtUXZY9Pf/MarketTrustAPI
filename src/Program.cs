@@ -16,7 +16,8 @@ string allowedSpecificOrigins = "AllowedSpecificOrigins";
 
 var builder = WebApplication.CreateBuilder(args);
 
-string[] allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? [];
+string allowedOriginsEnv = builder.Configuration["AllowedOrigins"] ?? string.Empty;
+string[] allowedOrigins = allowedOriginsEnv.Split(',', StringSplitOptions.RemoveEmptyEntries);
 
 builder.Services.AddCors(options =>
 {
@@ -66,7 +67,7 @@ builder.Services.AddSwaggerGen(option =>
 builder.Services.AddDbContext<ApplicationDBContext>(options => {
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection"),
-        x => x.UseNetTopologySuite());
+        x => x.UseNetTopologySuite().CommandTimeout(180));
 });
 
 builder.Services.AddIdentity<User, IdentityRole>(options => {
@@ -120,6 +121,31 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+}
+
+// https://stackoverflow.com/a/73896840
+using (var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
+{
+    var logger = serviceScope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    var db = serviceScope.ServiceProvider.GetRequiredService<ApplicationDBContext>().Database;
+
+    logger.LogInformation("Migrating database...");
+
+    while (!db.CanConnect())
+    {
+        logger.LogInformation("Database not ready yet; waiting...");
+        Thread.Sleep(1000);
+    }
+
+    try
+    {
+        db.Migrate();
+        logger.LogInformation("Database migrated successfully.");
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "An error occurred while migrating the database.");
+    }
 }
 
 app.UseHttpsRedirection();
