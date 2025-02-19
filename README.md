@@ -1,35 +1,23 @@
 # MarketTrustAPI
 
+MarketTrust is a marketplace where, in addition to exchanging items and services, users can also determine the reputation of the other party in the transaction based on a global trust value computed by the [EigenTrust](https://nlp.stanford.edu/pubs/eigentrust.pdf) algorithm.
+
 ## Table of Contents
 
 - [MarketTrustAPI](#markettrustapi)
   - [Table of Contents](#table-of-contents)
+  - [Quick start](#quick-start)
+    - [Docker](#docker)
   - [Development](#development)
-    - [Database](#database)
-    - [JWT](#jwt)
+
+## Quick start
+
+### Docker
+
+```sh
+docker-compose up --build
+```
 
 ## Development
 
-```sh
-$ cd src/
-$ dotnet watch run
-```
-
-### Database
-
-```sh
-$ cd src/
-$ dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=localhost,1433;Database=markettrust;User Id=SA;Password=${devPassword};Encrypt=false;TrustServerCertificate=True"
-$ dotnet ef migrations add init
-$ dotnet ef database update
-$ dotnet ef database drop
-$ dotnet ef migrations remove
-```
-
-### JWT
-
-```sh
-$ dotnet user-secrets set "JWT:Issuer" "http://localhost:5167"
-$ dotnet user-secrets set "JWT:Audience" "http://localhost:5167"
-$ dotnet user-secrets set "JWT:SigningKey" "devSigningKey"
-```
+See [DEVELOPMENT.md](DEVELOPMENT.md).
