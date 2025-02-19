@@ -10,6 +10,8 @@ namespace SpatialIndexManagerTests
 {
     public class HPRtreeManagerTests
     {
+        private const double DegreeLatitudeInMeters = 111320;
+
         private class TestLocatable : ILocatable
         {
             private readonly Point _location;
@@ -28,40 +30,51 @@ namespace SpatialIndexManagerTests
         [Fact]
         public void GetPointsInRadius_ReturnsCorrectPoints()
         {
+            GeographicConverter geographicConverter = new GeographicConverter();
+            HPRtreeManager manager = new HPRtreeManager(geographicConverter);
+
+            Point center = new Point(0, 0);
+            double radius = DegreeLatitudeInMeters;
             List<ILocatable> items = new List<ILocatable>
             {
                 new TestLocatable(0, 0),
-                new TestLocatable(1, 1),
                 new TestLocatable(2, 2),
-                new TestLocatable(5, 5)
             };
-            ISpatialIndexManager manager = new HPRtreeManager(items);
-            Point center = new Point(0, 0);
-            double radius = 2.5;
+
+            foreach (var item in items)
+            {
+                manager.Insert(item);
+            }
 
             IList<ILocatable> result = manager.GetPointsInRadius(center, radius);
 
             Assert.Contains(items[0], result);
-            Assert.Contains(items[1], result);
-            Assert.DoesNotContain(items[2], result);
-            Assert.DoesNotContain(items[3], result);
+            Assert.DoesNotContain(items[1], result);
         }
 
         [Fact]
-        public void GetPointsInRadius_ReturnsEmptyWhenNoPointsInRadius()
+        public void GetPointsInRadius_ReturnsPointsOnBoundary()
         {
-            var items = new List<ILocatable>
+            GeographicConverter geographicConverter = new GeographicConverter();
+            HPRtreeManager manager = new HPRtreeManager(geographicConverter);
+
+            Point center = new Point(0, 0);
+            double radius = DegreeLatitudeInMeters;
+            List<ILocatable> items = new List<ILocatable>
             {
-                new TestLocatable(10, 10),
-                new TestLocatable(20, 20)
+                new TestLocatable(1, 1),
+                new TestLocatable(1.01, 1.01),
             };
-            var manager = new HPRtreeManager(items);
-            var center = new Point(0, 0);
-            double radius = 5;
 
-            var result = manager.GetPointsInRadius(center, radius);
+            foreach (var item in items)
+            {
+                manager.Insert(item);
+            }
 
-            Assert.Empty(result);
+            IList<ILocatable> result = manager.GetPointsInRadius(center, radius);
+
+            Assert.Contains(items[0], result);
+            Assert.DoesNotContain(items[1], result);
         }
     }
 }

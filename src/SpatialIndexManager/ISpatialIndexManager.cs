@@ -8,6 +8,8 @@ namespace MarketTrustAPI.SpatialIndexManager
 {
     public interface ISpatialIndexManager
     {
-        public IList<ILocatable> GetPointsInRadius(Point center, double radius);
+        public void Insert(ILocatable item);
+        public void Remove(ILocatable item);
+        public IList<ILocatable> GetPointsInRadius(Point center, double radiusInMeters);
     }
 }
