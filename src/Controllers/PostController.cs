@@ -38,16 +38,18 @@ namespace MarketTrustAPI.Controllers
             string? trustorId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             List<Post> posts = await _postRepository.GetAllAsync(getPostDto);
-            PostDto[] postDtos = await Task.WhenAll(posts
-                .Select(async post => {
-                    PostDto postDto = post.ToPostDto();
-                    postDto.GlobalTrust = await _reputationService.GetGlobalTrustAsync(post.UserId);
-                    postDto.PersonalTrust = trustorId != null && getPostDto.D.HasValue
-                        ? await _reputationService.GetPersonalTrustAsync(trustorId, post.UserId, getPostDto.D.Value)
-                        : null;
+            List<PostDto> postDtos = new List<PostDto>(posts.Count);
 
-                    return postDto;
-                }));
+            foreach (Post post in posts)
+            {
+                PostDto postDto = post.ToPostDto();
+                postDto.GlobalTrust = await _reputationService.GetGlobalTrustAsync(post.UserId);
+                postDto.PersonalTrust = trustorId != null && getPostDto.D.HasValue
+                    ? await _reputationService.GetPersonalTrustAsync(trustorId, post.UserId, getPostDto.D.Value)
+                    : null;
+
+                postDtos.Add(postDto);
+            }
 
             return Ok(postDtos);
         }
