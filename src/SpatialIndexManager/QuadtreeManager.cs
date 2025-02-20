@@ -3,19 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NetTopologySuite.Geometries;
-using NetTopologySuite.Index.HPRtree;
+using NetTopologySuite.Index.Quadtree;
 
 namespace MarketTrustAPI.SpatialIndexManager
 {
-    public class HPRtreeManager<T> : ISpatialIndexManager<T> where T : ILocatable
+    public class QuadtreeManager<T> : ISpatialIndexManager<T> where T : ILocatable
     {
-        private readonly HPRtree<T> _hprTree;
+        private readonly Quadtree<T> _quadTree;
         private readonly IGeographicConverter _geographicConverter;
         private bool _isInitialized = false;
 
-        public HPRtreeManager(IGeographicConverter geographicConverter)
+        public QuadtreeManager(IGeographicConverter geographicConverter)
         {
-            _hprTree = new HPRtree<T>();
+            _quadTree = new Quadtree<T>();
+
             _geographicConverter = geographicConverter;
         }
 
@@ -24,7 +25,7 @@ namespace MarketTrustAPI.SpatialIndexManager
             Point? location = item.GetLocation();
             if (location != null)
             {
-                _hprTree.Insert(location.EnvelopeInternal, item);
+                _quadTree.Insert(location.EnvelopeInternal, item);
             }
         }
 
@@ -33,7 +34,7 @@ namespace MarketTrustAPI.SpatialIndexManager
             Point? location = item.GetLocation();
             if (location != null)
             {
-                _hprTree.Remove(location.EnvelopeInternal, item);
+                _quadTree.Remove(location.EnvelopeInternal, item);
             }
         }
 
@@ -68,8 +69,26 @@ namespace MarketTrustAPI.SpatialIndexManager
                 center.Coordinate.Y - radiusInDegreesLat, center.Coordinate.Y + radiusInDegreesLat
             );
 
-            // NOTE: Secondary circular filter omitted for efficiency
-            return _hprTree.Query(box);
+            IList<T> pointsInRadius = _quadTree
+                .Query(box)
+                .Where(point =>
+                {
+                    Point? location = point.GetLocation();
+                    if (location == null)
+                    {
+                        return false;
+                    }
+
+                    double distance = _geographicConverter.GreatCircleDistance(
+                        center.Coordinate.Y, center.Coordinate.X,
+                        location.Coordinate.Y, location.Coordinate.X
+                    );
+
+                    return distance <= radiusInMeters;
+                })
+                .ToList();
+
+            return pointsInRadius;
         }
     }
 }

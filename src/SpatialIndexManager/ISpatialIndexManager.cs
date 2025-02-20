@@ -6,10 +6,12 @@ using NetTopologySuite.Geometries;
 
 namespace MarketTrustAPI.SpatialIndexManager
 {
-    public interface ISpatialIndexManager
+    public interface ISpatialIndexManager<T> where T : ILocatable
     {
-        public void Insert(ILocatable item);
-        public void Remove(ILocatable item);
-        public IList<ILocatable> GetPointsInRadius(Point center, double radiusInMeters);
+        public void Insert(T item);
+        public void Remove(T item);
+        public bool IsInitialized();
+        public void Initialize(IEnumerable<T> items);
+        public IList<T> GetPointsInRadius(Point center, double radiusInMeters);
     }
 }

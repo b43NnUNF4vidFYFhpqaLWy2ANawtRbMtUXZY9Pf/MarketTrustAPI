@@ -6,6 +6,7 @@ using MarketTrustAPI.Dtos.Account;
 using MarketTrustAPI.Dtos.User;
 using MarketTrustAPI.Interfaces;
 using MarketTrustAPI.Models;
+using MarketTrustAPI.SpatialIndexManager;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,12 +19,14 @@ namespace MarketTrustAPI.Controllers
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly ITokenService _tokenService;
+        private readonly ISpatialIndexManager<User> _spatialIndexManager;
 
-        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager, ITokenService tokenService)
+        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager, ITokenService tokenService, ISpatialIndexManager<User> spatialIndexManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _tokenService = tokenService;
+            _spatialIndexManager = spatialIndexManager;
         }
 
         [HttpPost("login")]
@@ -79,6 +82,8 @@ namespace MarketTrustAPI.Controllers
 
                     if (roleResult.Succeeded)
                     {
+                        _spatialIndexManager.Insert(user);
+
                         return Ok(
                             new NewUserDto
                             {

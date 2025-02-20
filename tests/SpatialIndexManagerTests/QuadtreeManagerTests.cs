@@ -8,7 +8,7 @@ using NetTopologySuite.Geometries;
 
 namespace SpatialIndexManagerTests
 {
-    public class HPRtreeManagerTests
+    public class QuadtreeManagerTests
     {
         private const double DegreeLatitudeInMeters = 111320;
 
@@ -28,7 +28,7 @@ namespace SpatialIndexManagerTests
         }
 
         [Fact]
-        public void GetPointsInRadius_ReturnsCorrectPoints()
+        public void GetPointsInRaadius_ReturnsCorrectPoints()
         {
             GeographicConverter geographicConverter = new GeographicConverter();
             HPRtreeManager<TestLocatable> manager = new HPRtreeManager<TestLocatable>(geographicConverter);
@@ -38,7 +38,7 @@ namespace SpatialIndexManagerTests
             List<TestLocatable> items = new List<TestLocatable>
             {
                 new TestLocatable(0, 0),
-                new TestLocatable(2, 2),
+                new TestLocatable(2, 0),
             };
 
             foreach (var item in items)
@@ -62,8 +62,8 @@ namespace SpatialIndexManagerTests
             double radius = DegreeLatitudeInMeters;
             List<TestLocatable> items = new List<TestLocatable>
             {
-                new TestLocatable(1, 1),
-                new TestLocatable(1.01, 1.01),
+                new TestLocatable(1, 0),
+                new TestLocatable(1.01, 0),
             };
 
             foreach (var item in items)

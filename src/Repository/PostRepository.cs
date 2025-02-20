@@ -7,7 +7,9 @@ using MarketTrustAPI.Dtos.Post;
 using MarketTrustAPI.Dtos.PropertyValue;
 using MarketTrustAPI.Interfaces;
 using MarketTrustAPI.Models;
+using MarketTrustAPI.SpatialIndexManager;
 using Microsoft.EntityFrameworkCore;
+using NetTopologySuite.Geometries;
 
 namespace MarketTrustAPI.Repository
 {
@@ -15,11 +17,13 @@ namespace MarketTrustAPI.Repository
     {
         private readonly ApplicationDBContext _context;
         private readonly ICategoryRepository _categoryRepository;
+        private readonly ISpatialIndexManager<User> _spatialIndexManager;
 
-        public PostRepository(ApplicationDBContext context, ICategoryRepository categoryRepository)
+        public PostRepository(ApplicationDBContext context, ICategoryRepository categoryRepository, ISpatialIndexManager<User> spatialIndexManager)
         {
             _context = context;
             _categoryRepository = categoryRepository;
+            _spatialIndexManager = spatialIndexManager;
         }
 
         public async Task<List<Post>> GetAllAsync(GetPostDto getPostDto)
@@ -48,6 +52,23 @@ namespace MarketTrustAPI.Repository
                 descendantCategoryIds.Add(getPostDto.CategoryId.Value);
 
                 posts = posts.Where(post => descendantCategoryIds.Contains(post.CategoryId));
+            }
+
+            if (getPostDto.Longitude.HasValue && getPostDto.Latitude.HasValue && getPostDto.SearchRadius.HasValue)
+            {
+                if (!_spatialIndexManager.IsInitialized())
+                {
+                    IEnumerable<User> users = await _context.Users.Where(user => user.Location != null && user.IsPublicLocation).ToListAsync();
+                    _spatialIndexManager.Initialize(users);
+                }
+
+                Point center = new Point(getPostDto.Longitude.Value, getPostDto.Latitude.Value);
+                HashSet<string> userIdsInRadius = _spatialIndexManager
+                    .GetPointsInRadius(center, getPostDto.SearchRadius.Value)
+                    .Select(user => user.Id)
+                    .ToHashSet();
+
+                posts = posts.Where(post => userIdsInRadius.Contains(post.UserId));
             }
 
             if (getPostDto.Page.HasValue && getPostDto.PageSize.HasValue)

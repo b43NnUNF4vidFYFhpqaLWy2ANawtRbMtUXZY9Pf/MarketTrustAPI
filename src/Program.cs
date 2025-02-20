@@ -6,6 +6,7 @@ using MarketTrustAPI.Models;
 using MarketTrustAPI.Repository;
 using MarketTrustAPI.ReputationManager;
 using MarketTrustAPI.Services;
+using MarketTrustAPI.SpatialIndexManager;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -120,6 +121,8 @@ builder.Services.AddScoped<IReputationRepository, ReputationRepository>();
 builder.Services.AddScoped<ITrustRatingRepository, TrustRatingRepository>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddSingleton<IGeographicConverter, GeographicConverter>();
+builder.Services.AddSingleton<ISpatialIndexManager<User>, QuadtreeManager<User>>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 
 var app = builder.Build();
