@@ -22,13 +22,13 @@ namespace MarketTrustAPI.Repository
             _reputationService = reputationService;
         }
 
-        public async Task<List<TrustRating>> GetAllAsync(GetTrustRatingDto getTrustRatingDto)
+        public async Task<List<TrustRating>> GetAllAsync(GetTrustRatingDto getTrustRatingDto, string trustorId)
         {
             IQueryable<TrustRating> trustRatings = _context.TrustRatings.Include(tr => tr.Post);
 
-            if (!string.IsNullOrEmpty(getTrustRatingDto.TrustorId))
+            if (!string.IsNullOrEmpty(trustorId))
             {
-                trustRatings = trustRatings.Where(tr => tr.TrustorId == getTrustRatingDto.TrustorId);
+                trustRatings = trustRatings.Where(tr => tr.TrustorId == trustorId);
             }
 
             if (!string.IsNullOrEmpty(getTrustRatingDto.TrusteeId))

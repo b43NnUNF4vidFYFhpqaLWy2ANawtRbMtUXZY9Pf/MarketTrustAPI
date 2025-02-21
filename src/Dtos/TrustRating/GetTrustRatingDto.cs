@@ -8,7 +8,6 @@ namespace MarketTrustAPI.Dtos.TrustRating
 {
     public class GetTrustRatingDto
     {
-        public string? TrustorId { get; set; }
         public string? TrusteeId { get; set; }
         public int? PostId { get; set; }
         [Range(1, int.MaxValue, ErrorMessage = "Page number must be at least 1")]

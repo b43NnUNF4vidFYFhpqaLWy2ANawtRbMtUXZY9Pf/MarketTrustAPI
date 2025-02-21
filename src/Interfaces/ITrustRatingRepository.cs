@@ -9,7 +9,7 @@ namespace MarketTrustAPI.Interfaces
 {
     public interface ITrustRatingRepository
     {
-        public Task<List<TrustRating>> GetAllAsync(GetTrustRatingDto getTrustRatingDto);
+        public Task<List<TrustRating>> GetAllAsync(GetTrustRatingDto getTrustRatingDto, string trustorId);
         public Task<TrustRating?> GetByIdAsync(int id);
         public Task<TrustRating> CreateAsync(TrustRating trustRating);
         public Task<TrustRating?> UpdateAsync(int id, UpdateTrustRatingDto updateTrustRatingDto);

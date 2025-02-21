@@ -27,6 +27,50 @@ namespace MarketTrustAPI.Controllers
             _postRepository = postRepository;
         }
 
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetAll([FromQuery] GetTrustRatingDto getTrustRatingDto)
+        {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId == null)
+            {
+                return Unauthorized("User ID not found");
+            }
+
+            List<TrustRating> trustRatings = await _trustRatingRepository.GetAllAsync(getTrustRatingDto, userId);
+            List<TrustRatingDto> trustRatingDtos = trustRatings
+                .Select(trustRating => trustRating.ToTrustRatingDto())
+                .ToList();
+
+            return Ok(trustRatingDtos);
+        }
+
+        [HttpGet("{id:int}")]
+        [Authorize]
+        public async Task<IActionResult> GetById([FromRoute] int id)
+        {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId == null)
+            {
+                return Unauthorized("User ID not found");
+            }
+            else if (!await _trustRatingRepository.UserOwnsTrustRatingAsync(id, userId))
+            {
+                return Unauthorized("User is not the owner of the trust rating or the trust rating does not exist");
+            }
+
+            TrustRating? trustRating = await _trustRatingRepository.GetByIdAsync(id);
+
+            if (trustRating == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(trustRating.ToTrustRatingDto());
+        } 
+
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> Create([FromBody] CreateTrustRatingDto createTrustRatingDto)
@@ -57,7 +101,7 @@ namespace MarketTrustAPI.Controllers
 
             await _trustRatingRepository.CreateAsync(trustRating);
 
-            return Ok(trustRating.ToTrustRatingDto());
+            return CreatedAtAction(nameof(GetById), new { id = trustRating.Id }, trustRating.ToTrustRatingDto());
         }
 
         [HttpPut("{id:int}")]
