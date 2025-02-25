@@ -31,7 +31,7 @@ namespace SpatialIndexManagerTests
         public void GetPointsInRaadius_ReturnsCorrectPoints()
         {
             GeographicConverter geographicConverter = new GeographicConverter();
-            HPRtreeManager<TestLocatable> manager = new HPRtreeManager<TestLocatable>(geographicConverter);
+            QuadtreeManager<TestLocatable> manager = new QuadtreeManager<TestLocatable>(geographicConverter);
 
             Point center = new Point(0, 0);
             double radius = DegreeLatitudeInMeters;
@@ -56,7 +56,7 @@ namespace SpatialIndexManagerTests
         public void GetPointsInRadius_ReturnsPointsOnBoundary()
         {
             GeographicConverter geographicConverter = new GeographicConverter();
-            HPRtreeManager<TestLocatable> manager = new HPRtreeManager<TestLocatable>(geographicConverter);
+            QuadtreeManager<TestLocatable> manager = new QuadtreeManager<TestLocatable>(geographicConverter);
 
             Point center = new Point(0, 0);
             double radius = DegreeLatitudeInMeters;
