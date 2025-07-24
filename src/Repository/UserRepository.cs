@@ -12,12 +12,21 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MarketTrustAPI.Repository
 {
+    /// <summary>
+    /// Repository for users.
+    /// </summary>
     public class UserRepository : IUserRepository
     {
         private readonly ApplicationDBContext _context;
         private readonly UserManager<User> _userManager;
         private readonly ISpatialIndexManager<User> _spatialIndexManager;
 
+        /// <summary>
+        /// Constructs a new UserRepository.
+        /// </summary>
+        /// <param name="context"> The database context.</param>
+        /// <param name="userManager">The user manager.</param>
+        /// <param name="spatialIndexManager">The spatial index manager.</param>
         public UserRepository(ApplicationDBContext context, UserManager<User> userManager, ISpatialIndexManager<User> spatialIndexManager)
         {
             _context = context;
@@ -25,6 +34,7 @@ namespace MarketTrustAPI.Repository
             _spatialIndexManager = spatialIndexManager;
         }
 
+        /// <inheritdoc />
         public async Task<List<User>> GetAllAsync(GetUserDto getUserDto)
         {
             IQueryable<User> users = _context.Users.Include(user => user.Posts);
@@ -47,6 +57,7 @@ namespace MarketTrustAPI.Repository
             return await users.ToListAsync();
         }
 
+        /// <inheritdoc />
         public async Task<User?> GetByIdAsync(string id) 
         {
             return await _context.Users
@@ -54,6 +65,7 @@ namespace MarketTrustAPI.Repository
                 .FirstOrDefaultAsync(user => user.Id == id);
         }
 
+        /// <inheritdoc />
         public async Task<User?> UpdateAsync(string id, UpdateUserDto updateUserDto)
         {
             User? user = await _context.Users.FindAsync(id);
@@ -100,6 +112,7 @@ namespace MarketTrustAPI.Repository
             return user;
         }
 
+        /// <inheritdoc />
         public async Task<User?> DeleteAsync(string id)
         {
             // Due to the delete behavior being client cascade,
@@ -120,6 +133,7 @@ namespace MarketTrustAPI.Repository
             return user;
         }
 
+        /// <inheritdoc />
         public async Task<bool> ExistAsync(string id)
         {
             return await _context.Users.AnyAsync(user => user.Id == id);

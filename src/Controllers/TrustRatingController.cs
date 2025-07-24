@@ -12,6 +12,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MarketTrustAPI.Controllers
 {
+    /// <summary>
+    /// Controller for managing trust ratings.
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class TrustRatingController : ControllerBase
@@ -20,6 +23,12 @@ namespace MarketTrustAPI.Controllers
         private readonly IUserRepository _userRepository;
         private readonly IPostRepository _postRepository;
 
+        /// <summary>
+        /// Constructs a new TrustRatingController.
+        /// </summary>
+        /// <param name="trustRatingRepository">The trust rating repository.</param>
+        /// <param name="userRepository">The user repository.</param>
+        /// <param name="postRepository">The post repository.</param>
         public TrustRatingController(ITrustRatingRepository trustRatingRepository, IUserRepository userRepository, IPostRepository postRepository)
         {
             _trustRatingRepository = trustRatingRepository;
@@ -27,8 +36,15 @@ namespace MarketTrustAPI.Controllers
             _postRepository = postRepository;
         }
 
+        /// <summary>
+        /// Gets all trust ratings based on the specified filters.
+        /// </summary>
+        /// <param name="getTrustRatingDto">The filters for retrieving trust ratings.</param>
+        /// <returns>A list of trust ratings matching the filters, or a 401 Unauthorized if the user ID is not found.</returns>
         [HttpGet]
         [Authorize]
+        [ProducesResponseType(typeof(List<TrustRatingDto>), 200)]
+        [ProducesResponseType(401)]
         public async Task<IActionResult> GetAll([FromQuery] GetTrustRatingDto getTrustRatingDto)
         {
             string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -46,8 +62,16 @@ namespace MarketTrustAPI.Controllers
             return Ok(trustRatingDtos);
         }
 
+        /// <summary>
+        /// Gets a trust rating by its ID.
+        /// </summary>
+        /// <param name="id">The ID of the trust rating to retrieve.</param>
+        /// <returns>The trust rating with the specified ID, or a 404 Not Found if the trust rating does not exist, or a 401 Unauthorized if the user ID is not found or the user does not own the trust rating.</returns>
         [HttpGet("{id:int}")]
         [Authorize]
+        [ProducesResponseType(typeof(TrustRatingDto), 200)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
             string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -69,10 +93,19 @@ namespace MarketTrustAPI.Controllers
             }
 
             return Ok(trustRating.ToTrustRatingDto());
-        } 
+        }
 
+        /// <summary>
+        /// Creates a new trust rating.
+        /// </summary>
+        /// <param name="createTrustRatingDto">The data for the new trust rating.</param>
+        /// <returns>The created trust rating, or a 401 Unauthorized if the user ID is not found, a 400 Bad Request if the user tries to rate themselves, or a 404 Not Found if the trustee or post does not exist.</returns>
         [HttpPost]
         [Authorize]
+        [ProducesResponseType(typeof(TrustRatingDto), 201)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> Create([FromBody] CreateTrustRatingDto createTrustRatingDto)
         {
             string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -104,8 +137,17 @@ namespace MarketTrustAPI.Controllers
             return CreatedAtAction(nameof(GetById), new { id = trustRating.Id }, trustRating.ToTrustRatingDto());
         }
 
+        /// <summary>
+        /// Updates a trust rating with the specified ID.
+        /// </summary>
+        /// <param name="id">The ID of the trust rating to update.</param>
+        /// <param name="updateTrustRatingDto">The new trust rating data.</param>
+        /// <returns>The updated trust rating, or a 401 Unauthorized if the user ID is not found, or a 404 Not Found if the trust rating does not exist.</returns>
         [HttpPut("{id:int}")]
         [Authorize]
+        [ProducesResponseType(typeof(TrustRatingDto), 200)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateTrustRatingDto updateTrustRatingDto)
         {
             string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -130,8 +172,16 @@ namespace MarketTrustAPI.Controllers
             return Ok(trustRating.ToTrustRatingDto());
         }
 
+        /// <summary>
+        /// Deletes a trust rating with the specified ID.
+        /// </summary>
+        /// <param name="id">The ID of the trust rating to delete.</param>
+        /// <returns>A 200 OK response with the deleted trust rating, or a 401 Unauthorized if the user ID is not found or the user does not own the trust rating, or a 404 Not Found if the trust rating does not exist.</returns>
         [HttpDelete("{id:int}")]
         [Authorize]
+        [ProducesResponseType(typeof(TrustRatingDto), 200)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
             string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

@@ -11,17 +11,26 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MarketTrustAPI.Repository
 {
+    /// <summary>
+    /// Repository for trust ratings.
+    /// </summary>
     public class TrustRatingRepository : ITrustRatingRepository
     {
         private readonly ApplicationDBContext _context;
         private readonly IReputationService _reputationService;
 
+        /// <summary>
+        /// Constructs a new TrustRatingRepository.
+        /// </summary>
+        /// <param name="context">The database context.</param>
+        /// <param name="reputationService">The reputation service.</param>
         public TrustRatingRepository(ApplicationDBContext context, IReputationService reputationService)
         {
             _context = context;
             _reputationService = reputationService;
         }
 
+        /// <inheritdoc />
         public async Task<List<TrustRating>> GetAllAsync(GetTrustRatingDto getTrustRatingDto, string trustorId)
         {
             IQueryable<TrustRating> trustRatings = _context.TrustRatings.Include(tr => tr.Post);
@@ -50,11 +59,13 @@ namespace MarketTrustAPI.Repository
             return await trustRatings.ToListAsync();
         }
 
+        /// <inheritdoc />
         public async Task<TrustRating?> GetByIdAsync(int id)
         {
             return await _context.TrustRatings.FindAsync(id);
         }
 
+        /// <inheritdoc />
         public async Task<TrustRating> CreateAsync(TrustRating trustRating)
         {
             await _context.TrustRatings.AddAsync(trustRating);
@@ -65,6 +76,7 @@ namespace MarketTrustAPI.Repository
             return trustRating;
         }
 
+        /// <inheritdoc />
         public async Task<TrustRating?> UpdateAsync(int id, UpdateTrustRatingDto updateTrustRatingDto)
         {
             TrustRating? trustRating = await _context.TrustRatings.FindAsync(id);
@@ -84,6 +96,7 @@ namespace MarketTrustAPI.Repository
             return trustRating;
         }
 
+        /// <inheritdoc />
         public async Task<TrustRating?> DeleteAsync(int id)
         {
             TrustRating? trustRating = await _context.TrustRatings.FindAsync(id);
@@ -101,6 +114,7 @@ namespace MarketTrustAPI.Repository
             return trustRating;
         }
 
+        /// <inheritdoc />
         public async Task<bool> UserOwnsTrustRatingAsync(int trustRatingId, string userId)
         {
             TrustRating? trustRating = await _context.TrustRatings.FindAsync(trustRatingId);

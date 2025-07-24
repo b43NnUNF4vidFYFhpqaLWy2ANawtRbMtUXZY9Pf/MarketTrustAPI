@@ -13,6 +13,10 @@ namespace MarketTrustAPI.SpatialIndexManager
         private readonly IGeographicConverter _geographicConverter;
         private bool _isInitialized = false;
 
+        /// <summary>
+        /// Construct a new QuadtreeManager.
+        /// </summary>
+        /// <param name="geographicConverter">The geographic converter</param>
         public QuadtreeManager(IGeographicConverter geographicConverter)
         {
             _quadTree = new Quadtree<T>();
@@ -20,6 +24,7 @@ namespace MarketTrustAPI.SpatialIndexManager
             _geographicConverter = geographicConverter;
         }
 
+        /// <inheritdoc />
         public void Insert(T item)
         {
             Point? location = item.GetLocation();
@@ -29,6 +34,7 @@ namespace MarketTrustAPI.SpatialIndexManager
             }
         }
 
+        /// <inheritdoc />
         public void Remove(T item)
         {
             Point? location = item.GetLocation();
@@ -38,11 +44,13 @@ namespace MarketTrustAPI.SpatialIndexManager
             }
         }
 
+        /// <inheritdoc />
         public bool IsInitialized()
         {
             return _isInitialized;
         }
 
+        /// <inheritdoc />
         public void Initialize(IEnumerable<T> items)
         {
             if (IsInitialized())
@@ -58,6 +66,7 @@ namespace MarketTrustAPI.SpatialIndexManager
             _isInitialized = true;
         }
 
+        /// <inheritdoc />
         public IList<T> GetPointsInRadius(Point center, double radiusInMeters)
         {
             double latitude = center.Coordinate.Y;

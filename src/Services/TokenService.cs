@@ -11,11 +11,19 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace MarketTrustAPI.Services
 {
+    /// <summary>
+    /// Service for creating JWT tokens for user authentication.
+    /// </summary>
     public class TokenService : ITokenService
     {
         private readonly IConfiguration _config;
         private readonly SymmetricSecurityKey _key;
 
+        /// <summary>
+        /// Construct a TokenService instance.
+        /// </summary>
+        /// <param name="config">Configuration settings for JWT.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the signing key is not configured.</exception>
         public TokenService(IConfiguration config)
         {
             _config = config;
@@ -29,6 +37,7 @@ namespace MarketTrustAPI.Services
             _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey));
         }
 
+        /// <inheritdoc />
         public string CreateToken(User user)
         {
             List<Claim> claims = new List<Claim>

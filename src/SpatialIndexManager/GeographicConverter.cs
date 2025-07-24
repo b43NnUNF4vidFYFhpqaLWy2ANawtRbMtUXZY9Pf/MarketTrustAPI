@@ -22,6 +22,7 @@ namespace MarketTrustAPI.SpatialIndexManager
         private const double P3 = 0.118;
         private const double D = 6371000;
 
+        /// <inheritdoc />
         public double MetersToDegreesLatitude(double meters, double latitude)
         {
             double latRad = DegreesToRadians(latitude);
@@ -29,6 +30,7 @@ namespace MarketTrustAPI.SpatialIndexManager
             return meters / latlen;
         }
 
+        /// <inheritdoc />
         public double MetersToDegreesLongitude(double meters, double latitude)
         {
             double latRad = DegreesToRadians(latitude);
@@ -36,6 +38,7 @@ namespace MarketTrustAPI.SpatialIndexManager
             return meters / longlen;
         }
 
+        /// <inheritdoc />
         public double GreatCircleDistance(double lat1, double lon1, double lat2, double lon2)
         {
             double dLat = DegreesToRadians(lat2 - lat1);

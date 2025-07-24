@@ -13,12 +13,21 @@ using NetTopologySuite.Geometries;
 
 namespace MarketTrustAPI.Repository
 {
+    /// <summary>
+    /// Repository for managing posts.
+    /// </summary>
     public class PostRepository : IPostRepository
     {
         private readonly ApplicationDBContext _context;
         private readonly ICategoryRepository _categoryRepository;
         private readonly ISpatialIndexManager<User> _spatialIndexManager;
 
+        /// <summary>
+        /// Constructs a new PostRepository.
+        /// </summary>
+        /// <param name="context">The database context.</param>
+        /// <param name="categoryRepository">The category repository.</param>
+        /// <param name="spatialIndexManager">The spatial index manager.</param>
         public PostRepository(ApplicationDBContext context, ICategoryRepository categoryRepository, ISpatialIndexManager<User> spatialIndexManager)
         {
             _context = context;
@@ -26,6 +35,7 @@ namespace MarketTrustAPI.Repository
             _spatialIndexManager = spatialIndexManager;
         }
 
+        /// <inheritdoc />
         public async Task<List<Post>> GetAllAsync(GetPostDto getPostDto)
         {
             IQueryable<Post> posts = _context.Posts.Include(post => post.PropertyValues);
@@ -80,6 +90,7 @@ namespace MarketTrustAPI.Repository
             return await posts.ToListAsync();
         }
 
+        /// <inheritdoc />
         public async Task<Post?> GetByIdAsync(int id)
         {
             return await _context.Posts
@@ -87,6 +98,7 @@ namespace MarketTrustAPI.Repository
                 .FirstOrDefaultAsync(post => post.Id == id);
         }
 
+        /// <inheritdoc />
         public async Task<Post> CreateAsync(Post post)
         {
             await _context.Posts.AddAsync(post);
@@ -95,6 +107,7 @@ namespace MarketTrustAPI.Repository
             return post;
         }
 
+        /// <inheritdoc />
         public async Task<Post?> UpdateAsync(int id, UpdatePostDto updatePostDto)
         {
             Post? post = await _context.Posts.FindAsync(id);
@@ -114,6 +127,7 @@ namespace MarketTrustAPI.Repository
             return post;
         }
 
+        /// <inheritdoc />
         public async Task<Post?> DeleteAsync(int id)
         {
             Post? post = await _context.Posts.FindAsync(id);
@@ -129,6 +143,7 @@ namespace MarketTrustAPI.Repository
             return post;
         }
 
+        /// <inheritdoc />
         public async Task<Post?> AddPropertyValueAsync(int id, PropertyValue propertyValue)
         {
             Post? post = await _context.Posts
@@ -147,6 +162,7 @@ namespace MarketTrustAPI.Repository
             return post;
         }
 
+        /// <inheritdoc />
         public async Task<Post?> UpdatePropertyValueAsync(int postId, int propertyValueId, UpdatePropertyValueDto updatePropertyValueDto)
         {
             Post? post = await _context.Posts
@@ -174,6 +190,7 @@ namespace MarketTrustAPI.Repository
             return post;
         }
 
+        /// <inheritdoc />
         public async Task<Post?> DeletePropertyValueAsync(int postId, int propertyValueId)
         {
             Post? post = await _context.Posts
@@ -200,16 +217,19 @@ namespace MarketTrustAPI.Repository
             return post;
         }
 
+        /// <inheritdoc />
         public async Task<bool> ExistAsync(int id)
         {
             return await _context.Posts.AnyAsync(post => post.Id == id);
         }
 
+        /// <inheritdoc />
         public async Task<bool> UserOwnsPostAsync(int postId, string userId)
         {
             return await _context.Posts.AnyAsync(post => post.Id == postId && post.UserId == userId);
         }
 
+        /// <inheritdoc />
         public async Task<bool> PropertyNameExistsAsync(int postId, string name)
         {
             return await _context.PropertyValues.AnyAsync(propertyValue => propertyValue.PostId == postId && propertyValue.Name.ToLower() == name.ToLower());

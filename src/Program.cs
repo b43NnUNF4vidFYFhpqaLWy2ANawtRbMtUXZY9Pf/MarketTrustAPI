@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Text;
 using MarketTrustAPI.Configuration;
 using MarketTrustAPI.Data;
@@ -64,6 +65,14 @@ builder.Services.AddSwaggerGen(option =>
             new string[]{}
         }
     });
+
+    // XML documentation
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    if (File.Exists(xmlPath))
+    {
+        option.IncludeXmlComments(xmlPath);
+    }
 });
 
 builder.Services.AddDbContext<ApplicationDBContext>(options => {

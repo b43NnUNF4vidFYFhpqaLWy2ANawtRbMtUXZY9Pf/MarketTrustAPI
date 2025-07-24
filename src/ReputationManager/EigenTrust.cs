@@ -8,6 +8,12 @@ using Microsoft.Extensions.Options;
 
 namespace MarketTrustAPI.ReputationManager
 {
+    /// <summary>
+    /// The EigenTrust algorithm for reputation management.
+    /// </summary>
+    /// <remarks>
+    /// https://nlp.stanford.edu/pubs/eigentrust.pdf
+    /// </remarks>
     public class EigenTrust : IReputationManager
     {
         private Matrix<double>? _localTrust;
@@ -19,6 +25,13 @@ namespace MarketTrustAPI.ReputationManager
         private readonly int _maxIterations;
         private Dictionary<string, int>? _userIdToTrustIndex;
 
+        /// <summary>
+        /// Construct an EigenTrust instance.
+        /// </summary>
+        /// <param name="alpha">Bias towards the pre-trusted users. Must be in the range (0, 1].</param>
+        /// <param name="epsilon">Convergence threshold. Must be non-negative.</param>
+        /// <param name="maxIterations">Maximum number of iterations for convergence. Must be strictly positive.</param>
+        /// <exception cref="ArgumentException">Thrown if any of the parameters are out of bounds.</exception>
         public EigenTrust(double alpha, double epsilon, int maxIterations)
         {
             if (alpha <= 0 || alpha > 1)
@@ -41,11 +54,16 @@ namespace MarketTrustAPI.ReputationManager
             _maxIterations = maxIterations;
         }
 
+        /// <summary>
+        /// Construct an EigenTrust instance using configuration options.
+        /// </summary>
+        /// <param name="config">Configuration options for EigenTrust.</param>
         public EigenTrust(IOptions<EigenTrustConfig> config)
             : this(config.Value.Alpha, config.Value.Epsilon, config.Value.MaxIterations)
         {
         }
 
+        /// <inheritdoc />
         public bool IsInitialized()
         {
             return _localTrust != null &&
@@ -53,6 +71,8 @@ namespace MarketTrustAPI.ReputationManager
                    _userIdToTrustIndex != null;
         }
 
+        /// <inheritdoc />
+        /// <exception cref="ArgumentException">Thrown if the local trust matrix is not square or if the dimensions do not match the pre-trusted array.</exception>
         public void Update(Matrix<double> localTrust, bool[] pretrusted, Dictionary<string, int> userIdToTrustIndex)
         {
             if (localTrust.RowCount != localTrust.ColumnCount)
@@ -74,6 +94,8 @@ namespace MarketTrustAPI.ReputationManager
             UpdateGlobalTrust();
         }
 
+        /// <inheritdoc />
+        /// <exception cref="InvalidOperationException">Thrown if the userIdToTrustIndex has not been set before calling this method.</exception>
         public Dictionary<string, int> GetUserIdToTrustIndex()
         {
             if (_userIdToTrustIndex == null)
@@ -84,6 +106,8 @@ namespace MarketTrustAPI.ReputationManager
             return _userIdToTrustIndex;
         }
 
+        /// <inheritdoc />
+        /// <exception cref="InvalidOperationException">Thrown if the global trust vector has not been set before calling this method.</exception>
         public Vector<double> GetGlobalTrust()
         {
             if (_globalTrust == null)
@@ -94,6 +118,9 @@ namespace MarketTrustAPI.ReputationManager
             return _globalTrust;
         }
 
+        /// <inheritdoc />
+        /// <exception cref="InvalidOperationException">Thrown if localTrust, globalTrust, or normalizedLocalTrust have not been set before calling this method.</exception>
+        /// <exception cref="ArgumentException">Thrown if the index i or parameter d are out of bounds.</exception>
         public Vector<double> GetPersonalTrust(int i, double d)
         {
             if (_localTrust == null)

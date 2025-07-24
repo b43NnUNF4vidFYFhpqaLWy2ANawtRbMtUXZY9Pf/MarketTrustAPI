@@ -14,11 +14,16 @@ namespace MarketTrustAPI.Repository
     {
         private readonly ApplicationDBContext _context;
 
+        /// <summary>
+        /// Construct a RepuationRepository instance.
+        /// </summary>
+        /// <param name="context">The database context.</param>
         public ReputationRepository(ApplicationDBContext context)
         {
             _context = context;
         }
 
+        /// <inheritdoc />
         public async Task<LocalTrustResult> GetLocalTrustAsync()
         {
             List<User> users = await _context.Users.ToListAsync();

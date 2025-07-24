@@ -13,12 +13,18 @@ namespace MarketTrustAPI.Services
         private readonly IReputationManager _reputationManager;
         private readonly IReputationRepository _reputationRepository;
 
+        /// <summary>
+        /// Construct a ReputationService instance.
+        /// </summary>
+        /// <param name="reputationManager">The reputation management algorithm to use.</param>
+        /// <param name="reputationRepository">The repository to retrieve trust data from.</param>
         public ReputationService(IReputationManager reputationManager, IReputationRepository reputationRepository)
         {
             _reputationManager = reputationManager;
             _reputationRepository = reputationRepository;
         }
 
+        /// <inheritdoc />
         public async Task UpdateAsync()
         {
             LocalTrustResult localTrustResult = await _reputationRepository.GetLocalTrustAsync();
@@ -30,6 +36,7 @@ namespace MarketTrustAPI.Services
             );
         }
 
+        /// <inheritdoc />
         public async Task<double?> GetGlobalTrustAsync(string userId)
         {
             if (!_reputationManager.IsInitialized())
@@ -50,6 +57,7 @@ namespace MarketTrustAPI.Services
             }
         }
 
+        /// <inheritdoc />
         public async Task<double?> GetPersonalTrustAsync(string trustorId, string trusteeId, double d)
         {
             if (!_reputationManager.IsInitialized())

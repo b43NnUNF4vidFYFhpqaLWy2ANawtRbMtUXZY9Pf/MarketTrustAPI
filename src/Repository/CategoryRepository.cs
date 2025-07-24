@@ -14,11 +14,16 @@ namespace MarketTrustAPI.Repository
     {
         private readonly ApplicationDBContext _context;
 
+        /// <summary>
+        /// Constructs a new CategoryRepository.
+        /// </summary>
+        /// <param name="context">The database context.</param>
         public CategoryRepository(ApplicationDBContext context)
         {
             _context = context;
         }
 
+        /// <inheritdoc />
         public async Task<List<Category>> GetAllAsync(GetCategoryDto getCategoryDto)
         {
             IQueryable<Category> categories = _context.Categories.Include(category => category.Properties);
@@ -31,6 +36,7 @@ namespace MarketTrustAPI.Repository
             return await categories.ToListAsync();
         }
         
+        /// <inheritdoc />
         public async Task<Category?> GetByIdAsync(int id)
         {
             return await _context.Categories
@@ -38,6 +44,7 @@ namespace MarketTrustAPI.Repository
                 .FirstOrDefaultAsync(category => category.Id == id);
         }
 
+        /// <inheritdoc />
         public async Task<List<Category>> GetDescendantsAsync(int id)
         {
             Category? category = await _context.Categories.FindAsync(id);
@@ -56,11 +63,13 @@ namespace MarketTrustAPI.Repository
             }
         }
 
+        /// <inheritdoc />
         public async Task<bool> ExistAsync(int id)
         {
             return await _context.Categories.AnyAsync(category => category.Id == id);
         }
 
+        /// <inheritdoc />
         public async Task<List<Property>> GetInheritedPropertiesAsync(int id)
         {
             List<Property> inheritedProperties = new List<Property>();
